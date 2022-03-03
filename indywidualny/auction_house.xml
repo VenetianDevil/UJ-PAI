@@ -1,0 +1,23 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<auction_house>
+  <users>
+    <user id="" admin="1">
+      <name></name>
+      <password></password>
+    </user>
+  </users>
+  <offers>
+    <offer id="" closed="0">
+      <title></title>
+      <desc></desc>
+      <openBidPrice></openBidPrice>
+      <highestBidId></highestBidId>
+    </offer>
+  </offers>
+  <bids>
+    <bid id="" userId="" offerId="">
+      <value currency="PLN"></value>
+      <date></date>
+    </bid>
+  </bids>
+</auction_house>

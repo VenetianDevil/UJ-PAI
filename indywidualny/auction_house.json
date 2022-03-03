@@ -1,0 +1,29 @@
+{
+  "users": [
+    {
+      "userId": 1,
+      "name": "",
+      "password": "",
+      "admin": true
+    }
+  ],
+  "offers": [
+    {
+      "offerId": 1,
+      "title": "",
+      "description": "",
+      "startBidValue": 1000,
+      "active": true,
+      "highestBidId": 1
+    }
+  ],
+  "bids": [
+    {
+      "bidId": 1,
+      "offerId": 1,
+      "userId": 1,
+      "value": 2000,
+      "date": "02-03-2022"
+    }
+  ]
+}
