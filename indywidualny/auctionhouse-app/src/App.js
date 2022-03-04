@@ -1,6 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import Login from './Login';
+import {Auctions} from './Auctions';
 import {
   BrowserRouter as Router,
   Routes,
@@ -14,7 +15,7 @@ function App() {
     <div className="App">
       <header className="App-header">
         <Router>
-          <Navbar bg="dark" >
+          <Navbar bg="dark" className="py-3" >
             <Container>
               <Navbar.Brand>
                 <Link to="/">
@@ -40,6 +41,7 @@ function App() {
             <Routes>
               <Route path='' element="" />
               <Route path='/login' element={<Login />} />
+              <Route path='/auctions' element={<Auctions />} />
             </Routes>
           </Router>
         </Container>
