@@ -1,21 +1,16 @@
-// import { environment } from './Environment';
-
-import React from "react";
-
-const environment = {
-  production: false,
-  serverUrl: 'http://localhost:1596/api',
-};
+import { environment } from '../environment.ts';
+import * as auth from './AuthService';
 
 async function request(method, url, data) {
   console.log('gonna fetch')
 
   try {
+    console.log(auth.currentUserValue())
     const response = await fetch(url, {
       method: method,
       body: JSON.stringify(data),
       headers: {
-        // 'Authorization': 'bearer ' + (!!this.authService.currentUserValue ? this.authService.currentUserValue.token : ''),
+        'Authorization': 'bearer ' + (!!auth.currentUserValue() ? auth.currentUserValue().token : ''),
       }
     })
       .then((res) => res.json())
@@ -26,6 +21,11 @@ async function request(method, url, data) {
         }
         
         return res.data;
+      })
+      .catch(error => {
+        if(error.status === 401){
+          auth.logout();
+        }
       })
 
     return response;

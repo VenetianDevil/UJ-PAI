@@ -1,5 +1,5 @@
 import React from 'react';
-import * as server from './ServerService';
+import * as server from '../_services/ServerService';
 
 
 export class Auctions extends React.Component {

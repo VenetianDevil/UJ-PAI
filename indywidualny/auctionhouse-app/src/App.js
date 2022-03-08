@@ -1,7 +1,8 @@
-import logo from './logo.svg';
 import './App.css';
-import Login from './Login';
-import {Auctions} from './Auctions';
+import Login from './_components/Login';
+import {Auctions} from './_components/Auctions';
+import {Account} from './_components/Account';
+import * as auth from './_services/AuthService';
 import {
   BrowserRouter as Router,
   Routes,
@@ -11,6 +12,12 @@ import {
 import {Navbar, Container, Nav} from 'react-bootstrap';
 
 function App() {
+
+  function logout(){
+    console.log('user clicked log out');
+    auth.logout();
+  }
+
   return (
     <div className="App">
       <header className="App-header">
@@ -27,7 +34,7 @@ function App() {
                 <Nav className="ms-auto">
                   <Nav.Link href="/auctions">Auctions</Nav.Link>
                   <Nav.Link href="/account">My bets</Nav.Link>
-                  {false ? <Nav.Link href="/login">Login</Nav.Link> : <Nav.Link href="/">Logout</Nav.Link>}
+                  {!localStorage.currentUser || localStorage.currentUser === 'undefined' || localStorage.currentUser === "[]" ? <Nav.Link href="/login">Login</Nav.Link> : <Nav.Link href="/" onClick={logout()}>Logout</Nav.Link>}
                 </Nav>
               </Navbar.Collapse>
             </Container>
@@ -42,6 +49,7 @@ function App() {
               <Route path='' element="" />
               <Route path='/login' element={<Login />} />
               <Route path='/auctions' element={<Auctions />} />
+              <Route path='/account' element={<Account />} />
             </Routes>
           </Router>
         </Container>
