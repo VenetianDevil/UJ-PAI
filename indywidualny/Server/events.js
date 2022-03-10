@@ -57,7 +57,7 @@ function createRouter(db) {
 
   router.post('/api/logout', (req, res) => {
     res.status(200).json({ status: 200, message: "logOut - Front, I cannot do that, just clear user's cookies"});            
-    console.log("logOut - Front, I cannot do that, just clear user's cookies");
+    // console.log("logOut - Front, I cannot do that, just clear user's cookies");
   });
 
   function verifyToken(req, res, next) {
@@ -67,7 +67,7 @@ function createRouter(db) {
     if (bearerHeader) {
       const bearer = bearerHeader.split(' ');
       const bearerToken = bearer[1];
-      console.log('token', bearerToken)
+      // console.log('token', bearerToken)
 
       const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
 
@@ -77,31 +77,31 @@ function createRouter(db) {
       }
       else{
         res.status(401).json({status: 401, message: 'Twoja sesja wygasła &#129320'});
-        // res.status(403).json({status: 403, message: 'Błąd autoryzacji! Nie masz dostępu do rządanych treści!'})
       }
     }
     else {
       res.status(403).json({status: 403, message: 'Tak bez tokena prosisz?'});
+      // res.status(403).json({status: 403, message: 'Błąd autoryzacji! Nie masz dostępu do rządanych treści!'})
     }
 
   }
 
-  router.get('/api/users', verifyToken, (req, res, next) => {
-    db.query(
-      'SELECT * FROM user',
-      (error, result) => {
-        if (error) {
-          console.error(error);
-          res.status(500).json({ status: 500, message: 'Cannot access ' });
-        } else {
-          console.log('restult', result)
-          res.status(200).json({ data: result, status: 200 });
-        }
-      }
-    );
-  });
+  // router.get('/api/users', verifyToken, (req, res, next) => {
+  //   db.query(
+  //     'SELECT * FROM user',
+  //     (error, result) => {
+  //       if (error) {
+  //         console.error(error);
+  //         res.status(500).json({ status: 500, message: 'Cannot access ' });
+  //       } else {
+  //         console.log('restult', result)
+  //         res.status(200).json({ data: result, status: 200 });
+  //       }
+  //     }
+  //   );
+  // });
 
-  router.get('/api/offers_active', verifyToken, (req, res, next) => {
+  router.get('/api/offers_active', (req, res, next) => {
     db.query(
       'SELECT * FROM offer where active = 1',
       (error, result) => {
@@ -115,10 +115,9 @@ function createRouter(db) {
     );
   });
 
-  router.get('/api/type/:path', verifyToken, function (req, res, next) {
+  router.get('/api/offer/:id', function (req, res, next) {
     db.query(
-      'SELECT type FROM ( SELECT * FROM ' + req.params.path + ' WHERE user_id = ? ) as users_properties natural left join products natural join types group by type order by type',
-      [req.user.uid],
+      'SELECT * FROM offer where id_offer = ' + req.params.id,
       (error, result) => {
         if (error) {
           console.log(error);

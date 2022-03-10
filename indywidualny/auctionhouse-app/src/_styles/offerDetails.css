@@ -1,0 +1,21 @@
+.offer-details img {
+  object-fit: cover;
+  max-height: 600px;
+  width: 100%;
+}
+
+.col-desc {
+  display: grid;
+  place-content: center;
+  border: 4px solid #cecece;
+}
+
+.offer-details h2, .h2 {
+  font-size: 36px !important;
+  color: black;
+}
+
+.offer-details .btn {
+  width: 230px;
+  font-weight: 700 !important;
+}

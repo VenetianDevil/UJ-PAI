@@ -4,12 +4,6 @@ import * as server from '../_services/ServerService';
 
 export class Account extends React.Component {
 
-  // constructor() {
-  //   super();
-  //   this.loading = true;
-  //   this.offers = [];
-  // }
-
   state = { offers: [], isLoading: true};
 
   async getActiveOffers() {

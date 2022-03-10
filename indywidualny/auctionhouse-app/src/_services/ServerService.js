@@ -19,12 +19,15 @@ async function request(method, url, data) {
         if (res.message){
           console.info(res.message);
         }
-        
         return res.data;
       })
       .catch(error => {
         if(error.status === 401){
+          console.error("mam 401 i wylogowuje typa")
           auth.logout();
+        } else if(error.status === 403){
+          console.info(error.message);
+          // auth.logout();
         }
       })
 
@@ -42,7 +45,7 @@ function getActiveOffers() {
   return request('GET', `${environment.serverUrl}/offers_active`);
 };
 
-function getBids() {
-  return request('GET', `${environment.serverUrl}/bids`);
+function getOffer(id) {
+  return request('GET', `${environment.serverUrl}/offer/${id}`);
 };
-export { getUsers, getActiveOffers };
+export { getUsers, getActiveOffers, getOffer };

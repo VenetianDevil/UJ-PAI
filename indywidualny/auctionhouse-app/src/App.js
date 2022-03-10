@@ -1,22 +1,21 @@
 import './App.css';
-import Login from './_components/Login';
-import {Auctions} from './_components/Auctions';
-import {Account} from './_components/Account';
+import Login from './_page/Login';
+import Logout from './_components/Logout';
+import Register from './_page/Register';
+import {Auctions} from './_page/Auctions';
+import {Account} from './_page/Account';
+import OfferDetails from './_page/OfferDetails';
 import * as auth from './_services/AuthService';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
   Link,
+  useParams
 } from "react-router-dom";
-import {Navbar, Container, Nav} from 'react-bootstrap';
+import {Navbar, Container, Nav, Button, NavItem} from 'react-bootstrap';
 
 function App() {
-
-  function logout(){
-    console.log('user clicked log out');
-    auth.logout();
-  }
 
   return (
     <div className="App">
@@ -33,8 +32,8 @@ function App() {
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="ms-auto">
                   <Nav.Link href="/auctions">Auctions</Nav.Link>
-                  <Nav.Link href="/account">My bets</Nav.Link>
-                  {!localStorage.currentUser || localStorage.currentUser === 'undefined' || localStorage.currentUser === "[]" ? <Nav.Link href="/login">Login</Nav.Link> : <Nav.Link href="/" onClick={logout()}>Logout</Nav.Link>}
+                  {!!auth.currentUserValue() ? <Nav.Link href="/account">My bets</Nav.Link> : ''}
+                  {!auth.currentUserValue() ? <Nav.Link href="/login">Login</Nav.Link> : <Logout></Logout>}
                 </Nav>
               </Navbar.Collapse>
             </Container>
@@ -46,17 +45,19 @@ function App() {
         <Container>
           <Router>
             <Routes>
-              <Route path='' element="" />
-              <Route path='/login' element={<Login />} />
-              <Route path='/auctions' element={<Auctions />} />
-              <Route path='/account' element={<Account />} />
+              <Route exact path='' element={<Auctions />} />
+              <Route exact path='/login' element={<Login />} />
+              <Route exact path='/register' element={<Register />} />
+              <Route exact path='/auctions' element={<Auctions />} />
+              <Route exact path='/offer-details/:id/:title' element={<OfferDetails />} />
+              <Route exact path='/account' element={<Account />} />
             </Routes>
           </Router>
         </Container>
       </main>
 
-      <footer>
-
+      <footer className='d-grid align-content-center'>
+        <p className='text-center text-white'>Super stopka</p>
       </footer>
     </div>
   );
