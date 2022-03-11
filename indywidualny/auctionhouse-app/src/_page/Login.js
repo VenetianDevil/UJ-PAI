@@ -2,23 +2,31 @@ import * as auth from '../_services/AuthService';
 import { useState } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from "react-router-dom";
+import { NotificationManager } from 'react-notifications';
 
 function Login() {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
-  let navigate = useNavigate();
+  const navigate = useNavigate();
 
-  if(auth.currentUserValue()){
+  if (auth.currentUserValue()) {
     navigate("/", { replace: true });
   }
 
   const handleSubmit = async e => {
     e.preventDefault();
     if (username && password) {
+      console.log(username, password);
       auth.login({ username, password })
-        .then(() => {
-          navigate("/", { replace: true });
-          window.location.reload(false);
+        .then((res) => {
+          if (res) {
+            navigate("/", { replace: true });
+            window.location.reload(false);
+            NotificationManager.success('Logged in successfully', 'Logged in!');
+          } else {
+            console.log("NotificationManager", NotificationManager)
+            NotificationManager.error('Username and/or password are inncorect', 'Error!');
+          }
         })
         .catch((err) => {
           console.error(err);

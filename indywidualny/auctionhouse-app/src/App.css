@@ -41,6 +41,7 @@ h2, .h2 {
 }
 
 .offer_item img {
+  max-width: 100%;
   width: 320px;
   height: 300px;
   object-fit: cover;

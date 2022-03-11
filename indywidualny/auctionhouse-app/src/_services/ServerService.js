@@ -10,6 +10,7 @@ async function request(method, url, data) {
       method: method,
       body: JSON.stringify(data),
       headers: {
+        'Content-Type': 'application/json',
         'Authorization': 'bearer ' + (!!auth.currentUserValue() ? auth.currentUserValue().token : ''),
       }
     })
@@ -48,4 +49,13 @@ function getActiveOffers() {
 function getOffer(id) {
   return request('GET', `${environment.serverUrl}/offer/${id}`);
 };
-export { getUsers, getActiveOffers, getOffer };
+
+function placeBid(bid) {
+  return request('POST', `${environment.serverUrl}/bid`, bid);
+};
+
+function getBiddingHistory(id){
+  return request('GET', `${environment.serverUrl}/offer/${id}/biddings`);
+}
+
+export { getUsers, getActiveOffers, getOffer, placeBid, getBiddingHistory };

@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 // let currentUserSubject = {};
 // let currentUser = null;
 console.log(localStorage.getItem('currentUser'))
-if(localStorage.getItem('currentUser')===''){
+if(localStorage.getItem('currentUser')==='' || localStorage.getItem('currentUser')==='undefined'){
   localStorage.removeItem('currentUser');
   currentUserSubject.next(null);
 }
@@ -47,7 +47,7 @@ async function request(method, url, data) {
 }
 
 function currentUserValue() {
-  console.log(currentUserSubject);
+  // console.log(currentUserSubject);
   return currentUserSubject.value ? currentUserSubject.value[0] : null;
 }
 
@@ -55,10 +55,12 @@ function register(credentials) {
   return request('POST', `${environment.serverUrl}/register`, credentials)
     .then((response) => {
       console.log(response);
-      isLoggedIn = true;
-      localStorage.setItem('currentUser', JSON.stringify(response));
-      currentUserSubject.next(response);
-      console.log(localStorage);
+      if(response){
+        isLoggedIn = true;
+        localStorage.setItem('currentUser', JSON.stringify(response));
+        currentUserSubject.next(response);
+        console.log(localStorage);
+      }
       return response;
     })
     .catch(error => {
@@ -71,10 +73,12 @@ function login(credentials) {
   return request('POST', `${environment.serverUrl}/login`, credentials)
     .then((response) => {
       console.log(response);
-      isLoggedIn = true;
-      localStorage.setItem('currentUser', JSON.stringify(response));
-      currentUserSubject.next(response);
-      console.log(localStorage);
+      if(response){
+        isLoggedIn = true;
+        localStorage.setItem('currentUser', JSON.stringify(response));
+        currentUserSubject.next(response);
+        console.log(localStorage);
+      }
       return response;
     })
     .catch(error => {
@@ -94,10 +98,6 @@ function logout() {
       isLoggedIn = false;
       localStorage.removeItem('currentUser');
       currentUserSubject.next(null);
-      // navigate("/login");
-      // this.notification.success('Papa &#128075');
-      // Redirect the user
-      // this.router.navigate(['/']);
     })
     .catch(error => {
       console.error(error);

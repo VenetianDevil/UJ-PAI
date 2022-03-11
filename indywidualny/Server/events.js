@@ -12,7 +12,11 @@ function createRouter(db) {
       (error, result) => {
         if (error) {
           console.error(error);
-          res.status(500).json({ status: 500, message: "Couldn't create account user" });
+          if (error.code == "ER_DUP_ENTRY") {
+            res.status(500).json({ status: 409, message: "This username is taken" });
+          } else {
+            res.status(500).json({ status: 500, message: "Couldn't create account user" });
+          }
         } else {
           db.query(
             'SELECT id_user, is_admin, name FROM user where name=? and password=?',
@@ -22,7 +26,8 @@ function createRouter(db) {
                 console.error(error);
                 res.status(500).json({ status: 500, message: 'No matching user ' });
               } else {
-                const token = jwt.sign({ id: result[0].id }, 'the-super-strong-secrect', { expiresIn: '1h' });
+                const userInfo = { id_user: result[0].id_user, is_admin: result[0].is_admin };
+                const token = jwt.sign(userInfo, 'the-super-strong-secrect', { expiresIn: '1h' });
                 res.status(200).json({ data: result, token, status: 200 });
               }
             }
@@ -40,15 +45,20 @@ function createRouter(db) {
       (error, result) => {
         if (error) {
           console.error(error);
-          res.status(500).json({ status: 500, message: 'No matching user with given name' });
+          res.status(404).json({ status: 404, message: 'No matching user with given name' });
         } else {
-          console.log(result[0].password, req.body.password);
-          console.log(result[0].password == req.body.password);
-          if(result[0].password == req.body.password){
-            const token = jwt.sign({ id: result[0].id }, 'the-super-strong-secrect', { expiresIn: '1h' });
-            res.status(200).json({ data: result, token, status: 200 });            
+          if (result[0]) {
+            console.log(result[0].password, req.body.password);
+            console.log(result[0].password == req.body.password);
+            if (result[0].password == req.body.password) {
+              const userInfo = { id_user: result[0].id_user, is_admin: result[0].is_admin };
+              const token = jwt.sign(userInfo, 'the-super-strong-secrect', { expiresIn: '1h' });
+              res.status(200).json({ data: result, token, status: 200 });
+            } else {
+              res.status(401).json({ status: 401, message: "Wrong password! " });
+            }
           } else {
-            res.status(401).json({ status: 401, message: "Wrong password! "});
+            res.status(404).json({ status: 404, message: 'No matching user with given name' });
           }
         }
       }
@@ -56,7 +66,7 @@ function createRouter(db) {
   })
 
   router.post('/api/logout', (req, res) => {
-    res.status(200).json({ status: 200, message: "logOut - Front, I cannot do that, just clear user's cookies"});            
+    res.status(200).json({ status: 200, message: "logOut - Front, I cannot do that, just clear user's cookies" });
     // console.log("logOut - Front, I cannot do that, just clear user's cookies");
   });
 
@@ -71,35 +81,52 @@ function createRouter(db) {
 
       const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
 
-      if(!!user){
+      if (!!user) {
+        // console.log(user)
         req.user = user;
         next();
       }
-      else{
-        res.status(401).json({status: 401, message: 'Twoja sesja wygasła &#129320'});
+      else {
+        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła &#129320' });
       }
     }
     else {
-      res.status(403).json({status: 403, message: 'Tak bez tokena prosisz?'});
+      res.status(403).json({ status: 403, message: 'Tak bez tokena prosisz?' });
       // res.status(403).json({status: 403, message: 'Błąd autoryzacji! Nie masz dostępu do rządanych treści!'})
     }
 
   }
 
-  // router.get('/api/users', verifyToken, (req, res, next) => {
-  //   db.query(
-  //     'SELECT * FROM user',
-  //     (error, result) => {
-  //       if (error) {
-  //         console.error(error);
-  //         res.status(500).json({ status: 500, message: 'Cannot access ' });
-  //       } else {
-  //         console.log('restult', result)
-  //         res.status(200).json({ data: result, status: 200 });
-  //       }
-  //     }
-  //   );
-  // });
+  function verifyAdminToken(req, res, next) {
+    // console.log(req.headers['authorization'])
+    const bearerHeader = req.headers['authorization'];
+    // console.log(req);
+    if (bearerHeader) {
+      const bearer = bearerHeader.split(' ');
+      const bearerToken = bearer[1];
+      // console.log('token', bearerToken)
+
+      const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
+
+      if (!user) {
+        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła &#129320' });
+      }
+      else {
+        if (!!user.is_admin) {
+          // console.log(user)
+          req.user = user;
+          next();
+        } else {
+          res.status(403).json({ status: 403, message: 'Nie masz prawa do tych treści; zostań adminem' });
+        }
+      }
+    }
+    else {
+      res.status(403).json({ status: 403, message: 'Tak bez tokena prosisz?' });
+      // res.status(403).json({status: 403, message: 'Błąd autoryzacji! Nie masz dostępu do rządanych treści!'})
+    }
+
+  }
 
   router.get('/api/offers_active', (req, res, next) => {
     db.query(
@@ -118,6 +145,51 @@ function createRouter(db) {
   router.get('/api/offer/:id', function (req, res, next) {
     db.query(
       'SELECT * FROM offer where id_offer = ' + req.params.id,
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          res.status(200).json({ data: result, status: 200 });
+        }
+      }
+    );
+  });
+
+  router.post('/api/bid', verifyToken, function (req, res, next) {
+    // console.log(req.user);
+    // console.log(req.body);
+    const today = new Date();
+
+    db.query(
+      'INSERT INTO bid (id_user, id_offer, value, date) values (?, ?, ?, ?)',
+      [req.user.id_user, req.body.id_offer, req.body.value, today],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          console.log('update max bid id');
+          db.query(
+            'UPDATE offer SET winning_bid_id = (Select id_bid from bid where value = (SELECT max(value) FROM auctionhouse.bid where id_offer=?)) where id_offer = ?',
+            [req.body.id_offer, req.body.id_offer],
+            (error, result) => {
+              if (error) {
+                console.log(error);
+                res.status(500).json({ status: 500 });
+              } else {
+                res.status(200).json({ data: result, status: 200 });
+              }
+            }
+          )
+        }
+      }
+    );
+  });
+
+  router.get('/api/offer/:id/biddings', verifyAdminToken, function (req, res, next) {
+    db.query(
+      'SELECT * FROM auctionhouse.bid NATURAL left join auctionhouse.user WHERE id_offer=' + req.params.id,
       (error, result) => {
         if (error) {
           console.log(error);

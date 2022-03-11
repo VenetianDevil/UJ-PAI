@@ -2,6 +2,7 @@ import * as auth from '../_services/AuthService';
 import { useState } from 'react';
 import { Nav, Form, Button, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from "react-router-dom";
+import { NotificationManager } from 'react-notifications';
 
 function Logout() {
   let navigate = useNavigate();
@@ -14,6 +15,7 @@ function Logout() {
       console.log('i do loginu')
       navigate("/login", { replace: true })
       window.location.reload(false);
+      NotificationManager.warning('Logged out successfully', 'Logged out!');
     })
   }
 

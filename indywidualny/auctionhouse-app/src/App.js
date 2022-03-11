@@ -1,4 +1,5 @@
 import './App.css';
+import 'react-notifications/lib/notifications.css';
 import Login from './_page/Login';
 import Logout from './_components/Logout';
 import Register from './_page/Register';
@@ -13,7 +14,8 @@ import {
   Link,
   useParams
 } from "react-router-dom";
-import {Navbar, Container, Nav, Button, NavItem} from 'react-bootstrap';
+import {Navbar, Container, Nav, Switch} from 'react-bootstrap';
+import { NotificationContainer } from 'react-notifications';
 
 function App() {
 
@@ -59,6 +61,7 @@ function App() {
       <footer className='d-grid align-content-center'>
         <p className='text-center text-white'>Super stopka</p>
       </footer>
+      <NotificationContainer/>
     </div>
   );
 }

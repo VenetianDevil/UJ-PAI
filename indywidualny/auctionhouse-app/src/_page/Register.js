@@ -2,6 +2,7 @@ import * as auth from '../_services/AuthService';
 import { useState } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from "react-router-dom";
+import { NotificationManager } from 'react-notifications';
 
 function Login() {
   const [username, setUserName] = useState();
@@ -16,10 +17,14 @@ function Login() {
 
   const handleSubmit = async e => {
     e.preventDefault();
+    // OBSŁUGA BŁĘDÓW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! zajeta nazwa użyt.
     if (username && password && password === password_conf) {
       auth.register({ username, password })
-        .then(() => {
-          navigate("/");
+        .then((res) => {
+          if(res){
+            navigate("/");
+            NotificationManager.success('Logged in successfully', 'Registered!');
+          }
         })
     } else {
       // 
