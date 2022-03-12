@@ -19,3 +19,7 @@
   width: 230px;
   font-weight: 700 !important;
 }
+
+.retracted_bid {
+  background-color: rgb(255, 180, 180);
+}

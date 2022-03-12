@@ -119,7 +119,7 @@ class OfferDetailsComponent extends React.Component {
                 </thead>
                 <tbody>
                   {!!admin.bids.length ? admin.bids.map(bid =>
-                    <tr>
+                    <tr className={!!bid.retracted ? 'retracted_bid' : ''}>
                       <td>{bid.id_bid}</td>
                       <td>{bid.username}</td>
                       <td>{bid.value}</td>

@@ -18,7 +18,6 @@ import {Navbar, Container, Nav, Switch} from 'react-bootstrap';
 import { NotificationContainer } from 'react-notifications';
 
 function App() {
-
   return (
     <div className="App">
       <header className="App-header">
@@ -33,6 +32,7 @@ function App() {
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="ms-auto">
+                  {!!auth.currentUserValue() ? <Navbar.Text>{auth.currentUserValue().username}</Navbar.Text> : null}
                   <Nav.Link href="/auctions">Auctions</Nav.Link>
                   {!!auth.currentUserValue() ? <Nav.Link href="/account">My bets</Nav.Link> : ''}
                   {!auth.currentUserValue() ? <Nav.Link href="/login">Login</Nav.Link> : <Logout></Logout>}

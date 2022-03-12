@@ -17,8 +17,8 @@ export class Item extends React.Component {
     // console.log(this.offer);
 
     return (
-      <Col xs={12} sm={6} lg={4}>
-        <div className="offer_item">
+      <Col xs={12} sm={6} lg={4} className="mb-4">
+        <div className="offer_item border-0">
           <img src={this.offer.img_url}></img>
           <h3> {this.offer.title} </h3>
           {/* to={"/offer-details/" + this.offer.id_offer + "/" + toKebabCase(this.offer.title)}  */}

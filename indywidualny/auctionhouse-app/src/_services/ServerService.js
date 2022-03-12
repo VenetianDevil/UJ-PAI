@@ -1,5 +1,6 @@
 import { environment } from '../environment.ts';
 import * as auth from './AuthService';
+import { useNavigate } from "react-router-dom";
 
 async function request(method, url, data) {
   console.log('gonna fetch')
@@ -19,6 +20,11 @@ async function request(method, url, data) {
         // console.log(data)
         if (res.message){
           console.info(res.message);
+        }
+        
+        if (res.status == 401){
+          console.error("mam 401 i wylogowuje typa")
+          auth.logout()
         }
         return res.data;
       })
@@ -58,4 +64,12 @@ function getBiddingHistory(id){
   return request('GET', `${environment.serverUrl}/offer/${id}/biddings`);
 }
 
-export { getUsers, getActiveOffers, getOffer, placeBid, getBiddingHistory };
+function getUserOffers(){
+  return request('GET', `${environment.serverUrl}/userOffers`);
+}
+
+function resignFromOffer(offerId) {
+  return request('POST', `${environment.serverUrl}/retractBids/${offerId}`);
+};
+
+export { getUsers, getActiveOffers, getOffer, placeBid, getBiddingHistory, getUserOffers, resignFromOffer };

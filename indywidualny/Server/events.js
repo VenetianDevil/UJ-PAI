@@ -79,16 +79,20 @@ function createRouter(db) {
       const bearerToken = bearer[1];
       // console.log('token', bearerToken)
 
-      const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
+      try {
+        const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
+        if (!!user) {
+          // console.log(user)
+          req.user = user;
+          next();
+        }
+        else {
+          res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
+        }
+      } catch (err) {
+        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
+      }
 
-      if (!!user) {
-        // console.log(user)
-        req.user = user;
-        next();
-      }
-      else {
-        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła &#129320' });
-      }
     }
     else {
       res.status(403).json({ status: 403, message: 'Tak bez tokena prosisz?' });
@@ -109,7 +113,7 @@ function createRouter(db) {
       const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
 
       if (!user) {
-        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła &#129320' });
+        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
       }
       else {
         if (!!user.is_admin) {
@@ -171,7 +175,7 @@ function createRouter(db) {
         } else {
           console.log('update max bid id');
           db.query(
-            'UPDATE offer SET winning_bid_id = (Select id_bid from bid where value = (SELECT max(value) FROM auctionhouse.bid where id_offer=?)) where id_offer = ?',
+            'UPDATE offer SET winning_bid_id = (Select id_bid from bid where value = (SELECT max(value) FROM auctionhouse.bid where id_offer=?)) where id_offer = ?', //uwzglednic bid.retracted -> nie liczą się juz
             [req.body.id_offer, req.body.id_offer],
             (error, result) => {
               if (error) {
@@ -190,6 +194,35 @@ function createRouter(db) {
   router.get('/api/offer/:id/biddings', verifyAdminToken, function (req, res, next) {
     db.query(
       'SELECT * FROM auctionhouse.bid NATURAL left join auctionhouse.user WHERE id_offer=' + req.params.id,
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          res.status(200).json({ data: result, status: 200 });
+        }
+      }
+    );
+  });
+
+  router.get('/api/userOffers', verifyToken, function (req, res, next) {
+    db.query(
+      'select * from auctionhouse.bid natural left join auctionhouse.offer where (id_offer, value) in (SELECT id_offer, max(value) FROM auctionhouse.bid natural left join auctionhouse.offer where id_user = ' + req.user.id_user + ' group by id_offer)',
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          res.status(200).json({ data: result, status: 200 });
+        }
+      }
+    );
+  });
+
+  router.post('/api/retractBids/:offerId', verifyToken, function (req, res, next) {
+    db.query(
+      'UPDATE bid SET retracted = true where id_offer = ? AND id_user = ' + req.user.id_user,
+      [req.params.offerId],
       (error, result) => {
         if (error) {
           console.log(error);

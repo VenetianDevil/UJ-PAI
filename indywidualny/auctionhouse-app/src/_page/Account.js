@@ -1,13 +1,17 @@
 import React from 'react';
 import * as server from '../_services/ServerService';
-
+import * as auth from '../_services/AuthService';
+import { Col, Row, Button, Modal, Form, Tabs, Tab } from 'react-bootstrap';
+import { ItemUserOffer } from '../_components/ItemUserOffer';
+import { Navigate, Route } from 'react-router-dom'
 
 export class Account extends React.Component {
 
-  state = { offers: [], isLoading: true};
+  state = { offers: [], isLoading: true };
+  loggedIn = auth.currentUserValue() ? true : false;
 
-  async getActiveOffers() {
-    await server.getActiveOffers()
+  async getUserOffers() {
+    await server.getUserOffers()
       .then((data) => {
         console.log(data)
         this.setState({ offers: data, isLoading: false });
@@ -16,24 +20,41 @@ export class Account extends React.Component {
   }
 
   componentDidMount() {
-    this.getActiveOffers();
+    this.getUserOffers();
   }
 
   render() {
     const { offers, isLoading } = this.state;
     console.log(isLoading)
+    
+    if (!this.loggedIn) {
+      return (
+        <Route>
+          <Navigate to={{ pathname: '/login' }}/>
+        </Route>
+      )
+    }
 
     if (isLoading) {
       return null;
     }
 
     return (
-      <div>
-        <h2> Offers </h2>
-        <ul>
-          {offers.map(offer => <li id={offer.idoffer}>{offer.title}</li>)}
-        </ul>
-      </div>
+      <section>
+        <h2 className='text-center my-5'>My bets</h2>
+        <Tabs defaultActiveKey="active" id="uncontrolled-tab-example" justify >
+          <Tab eventKey="active" title="Active">
+            <Row className='p-5'>
+              {offers.map(offer => { return (offer.active ? <ItemUserOffer offer={offer}></ItemUserOffer> : null) })}
+            </Row>
+          </Tab>
+          <Tab eventKey="closed" title="Closed">
+            <Row className='p-5'>
+              {offers.map(offer => { return (!offer.active ? <ItemUserOffer offer={offer}></ItemUserOffer> : null) })}
+            </Row>
+          </Tab>
+        </Tabs>
+      </section>
     );
   }
 }
