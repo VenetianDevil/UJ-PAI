@@ -192,7 +192,7 @@ form input {
 .ribbon::before,
 .ribbon::after {
   position: absolute;
-  z-index: 0;
+  z-index: -1;
   content: '';
   display: block;
   border: 5px solid #209e63;
@@ -210,6 +210,15 @@ form input {
   text-shadow: 0 1px 1px rgba(0, 0, 0, .2);
   text-transform: uppercase;
   text-align: center;
+}
+
+.ribbon.red::after,
+.ribbon.red::before{
+  border: 5px solid #9e2020 !important;
+}
+
+.ribbon.red span{
+  background-color: #db3434 !important;
 }
 
 /* top right*/

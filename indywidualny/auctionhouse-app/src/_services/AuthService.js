@@ -93,11 +93,11 @@ function logout() {
   console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!ktos zrobil logout');
   return request('POST', `${environment.serverUrl}/logout`)
     .then((response) => {
-      // let history = useHistory();
       console.log("czy ja tu wgl wchodze?")
       isLoggedIn = false;
       localStorage.removeItem('currentUser');
       currentUserSubject.next(null);
+      // musi tu być jakoś redirect zrobiony bo inaczej mi strona wysiada i musze conajmniej odświeżyć
     })
     .catch(error => {
       console.error(error);

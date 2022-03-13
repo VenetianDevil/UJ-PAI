@@ -110,19 +110,23 @@ function createRouter(db) {
       const bearerToken = bearer[1];
       // console.log('token', bearerToken)
 
-      const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
+      try {
+        const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
 
-      if (!user) {
-        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
-      }
-      else {
-        if (!!user.is_admin) {
-          // console.log(user)
-          req.user = user;
-          next();
-        } else {
-          res.status(403).json({ status: 403, message: 'Nie masz prawa do tych treści; zostań adminem' });
+        if (!user) {
+          res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
         }
+        else {
+          if (!!user.is_admin) {
+            // console.log(user)
+            req.user = user;
+            next();
+          } else {
+            res.status(403).json({ status: 403, message: 'Nie masz prawa do tych treści; zostań adminem' });
+          }
+        }
+      } catch (err) {
+        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
       }
     }
     else {
@@ -174,18 +178,7 @@ function createRouter(db) {
           res.status(500).json({ status: 500 });
         } else {
           console.log('update max bid id');
-          db.query(
-            'UPDATE offer SET winning_bid_id = (Select id_bid from bid where value = (SELECT max(value) FROM auctionhouse.bid where id_offer=?)) where id_offer = ?', //uwzglednic bid.retracted -> nie liczą się juz
-            [req.body.id_offer, req.body.id_offer],
-            (error, result) => {
-              if (error) {
-                console.log(error);
-                res.status(500).json({ status: 500 });
-              } else {
-                res.status(200).json({ data: result, status: 200 });
-              }
-            }
-          )
+          updateMaxBid(req.body.id_offer);
         }
       }
     );
@@ -228,11 +221,26 @@ function createRouter(db) {
           console.log(error);
           res.status(500).json({ status: 500 });
         } else {
-          res.status(200).json({ data: result, status: 200 });
+          updateMaxBid(req.params.offerId)
         }
       }
     );
   });
+
+  function updateMaxBid(offerId) {
+    db.query(
+      'UPDATE offer SET winning_bid_id = (Select id_bid from bid where value = (SELECT max(value) FROM auctionhouse.bid where id_offer=? AND retracted <> 1)) where id_offer = ?', //uwzglednic bid.retracted -> nie liczą się juz
+      [offerId, offerId],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          res.status(200).json({ data: result, status: 200 });
+        }
+      }
+    )
+  }
 
   return router;
 }

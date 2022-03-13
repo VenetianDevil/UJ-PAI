@@ -15,3 +15,7 @@ node index.js
 ```
 
 * Front 
+
+```
+npm start
+```

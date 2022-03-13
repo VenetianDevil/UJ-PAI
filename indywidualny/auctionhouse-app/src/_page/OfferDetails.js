@@ -122,7 +122,7 @@ class OfferDetailsComponent extends React.Component {
                     <tr className={!!bid.retracted ? 'retracted_bid' : ''}>
                       <td>{bid.id_bid}</td>
                       <td>{bid.username}</td>
-                      <td>{bid.value}</td>
+                      <td>{Number(bid.value).toFixed(2)}</td>
                       <td>{new Date(bid.date).toISOString().slice(0, 10)}</td>
                     </tr>
                   ) :
@@ -144,7 +144,7 @@ class OfferDetailsComponent extends React.Component {
 
               <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>bid val *</Form.Label>
-                <Form.Control type="number" placeholder="100 000" onChange={this.handleBid} />
+                <Form.Control type="number" step="0.01" placeholder="100 000" onChange={this.handleBid} />
               </Form.Group>
 
               <Button variant="primary" type="submit" className='w-100'>

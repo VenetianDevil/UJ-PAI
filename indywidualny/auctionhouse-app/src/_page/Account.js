@@ -3,7 +3,7 @@ import * as server from '../_services/ServerService';
 import * as auth from '../_services/AuthService';
 import { Col, Row, Button, Modal, Form, Tabs, Tab } from 'react-bootstrap';
 import { ItemUserOffer } from '../_components/ItemUserOffer';
-import { Navigate, Route } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
 export class Account extends React.Component {
 
@@ -25,13 +25,11 @@ export class Account extends React.Component {
 
   render() {
     const { offers, isLoading } = this.state;
-    console.log(isLoading)
-    
+    console.log('islogged', this.loggedIn, offers);
+
     if (!this.loggedIn) {
       return (
-        <Route>
-          <Navigate to={{ pathname: '/login' }}/>
-        </Route>
+        <Navigate to={{ pathname: '/login' }} />
       )
     }
 

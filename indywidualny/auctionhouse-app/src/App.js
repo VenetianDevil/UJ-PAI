@@ -26,7 +26,7 @@ function App() {
             <Container>
               <Navbar.Brand>
                 <Link to="/">
-                  <img src="./img/logo.png" height="60"  className="d-inline-block align-top" alt="Auction house logo"/>
+                  <img src="/img/logo.png" height="60"  className="d-inline-block align-top" alt="Auction house logo"/>
                 </Link>
                 </Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
@@ -34,7 +34,7 @@ function App() {
                 <Nav className="ms-auto">
                   {!!auth.currentUserValue() ? <Navbar.Text>{auth.currentUserValue().username}</Navbar.Text> : null}
                   <Nav.Link href="/auctions">Auctions</Nav.Link>
-                  {!!auth.currentUserValue() ? <Nav.Link href="/account">My bets</Nav.Link> : ''}
+                  {!!auth.currentUserValue() && !auth.currentUserValue().is_admin ? <Nav.Link href="/account">My bets</Nav.Link> : ''}
                   {!auth.currentUserValue() ? <Nav.Link href="/login">Login</Nav.Link> : <Logout></Logout>}
                 </Nav>
               </Navbar.Collapse>

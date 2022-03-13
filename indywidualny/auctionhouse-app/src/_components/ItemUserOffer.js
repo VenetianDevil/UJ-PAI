@@ -8,7 +8,7 @@ export class ItemUserOffer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.state = { bidVal: 1000, show: false, showResign:false, isLoading: true };
+    this.state = { bidVal: 1000, show: false, showResign: false, isLoading: true };
     this.offer = this.props.offer;
 
     this.handleBid = this.handleBid.bind(this);
@@ -32,20 +32,20 @@ export class ItemUserOffer extends React.Component {
     e.preventDefault();
     this.setState({ bidVal: e.target.value })
   }
-  
+
   handleClose() {
     console.log('close')
     this.setState({ bidVal: null, show: false, showResign: false })
   }
-  
+
   showBidModal() {
     this.setState({ show: true });
   }
-  
+
   showResignModal() {
     this.setState({ showResign: true });
   }
-  
+
   async handleResignation(e) {
     e.preventDefault();
     console.log('bidding', this.offer.id_offer);
@@ -60,20 +60,26 @@ export class ItemUserOffer extends React.Component {
 
     return (
       <Col xs={12} sm={6} lg={4} className="p-0">
-        <div className="offer_item">
+        <div className={'offer_item ' + (!this.offer.active ? ' offer-not-active' : '')}>
           <div>
             {this.offer.winning_bid_id && this.offer.winning_bid_id == this.offer.id_bid ?
               <div className='ribbon ribbon-top-right'>
-                <span>Winning</span>
+                <span>Winning bid</span>
                 <img src={this.offer.img_url}></img>
               </div>
-              : <img src={this.offer.img_url}></img>
+              : (!!this.offer.retracted ?
+                <div className='ribbon ribbon-top-right red'>
+                  <span>Retracted</span>
+                  <img src={this.offer.img_url}></img>
+                </div>
+                :
+                <img src={this.offer.img_url}></img>)
             }
             <h3> {this.offer.title} </h3>
-            <p>{ this.offer.value } PLN </p>
+            <p>{Number(this.offer.value).toFixed(2)} PLN </p>
             <ButtonGroup>
               <Button role="link" variant="outline-primary" className='px-4' onClick={this.showBidModal}>BID</Button>
-              {!this.offer.retracted ? <Button role="link" variant="outline-primary" className='px-4' onClick={this.showResignModal}>RESIGN</Button> : null}
+              {!this.offer.retracted ? <Button role="link" variant="outline-primary" className='px-4' onClick={this.showResignModal}>RETRACT</Button> : null}
             </ButtonGroup>
           </div>
         </div>
@@ -87,7 +93,7 @@ export class ItemUserOffer extends React.Component {
 
               <Form.Group className="mb-3" controlId="formBasicEmail">
                 <Form.Label>bid val *</Form.Label>
-                <Form.Control type="number" placeholder="100 000" onChange={this.handleBid} />
+                <Form.Control type="number" step="0.01" placeholder="100 000" onChange={this.handleBid} />
               </Form.Group>
 
               <Button variant="primary" type="submit" className='w-100'>
