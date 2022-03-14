@@ -1,12 +1,13 @@
 import { environment } from '../environment.ts';
-import { Observable, of, BehaviorSubject } from 'rxjs';
+import { Observable, of, BehaviorSubject, retry } from 'rxjs';
 // import { User } from './user.ts';
 import { useNavigate } from "react-router-dom";
+import { NotificationManager } from 'react-notifications';
 
 // let currentUserSubject = {};
 // let currentUser = null;
 console.log(localStorage.getItem('currentUser'))
-if(localStorage.getItem('currentUser')==='' || localStorage.getItem('currentUser')==='undefined'){
+if (localStorage.getItem('currentUser') === '' || localStorage.getItem('currentUser') === 'undefined') {
   localStorage.removeItem('currentUser');
   currentUserSubject.next(null);
 }
@@ -37,7 +38,7 @@ async function request(method, url, data) {
           res.data[0].token = res.token;
         }
 
-        return res.data;
+        return res;
       })
 
     return response;
@@ -55,52 +56,69 @@ function register(credentials) {
   return request('POST', `${environment.serverUrl}/register`, credentials)
     .then((response) => {
       console.log(response);
-      if(response){
+      if (response.data) {
+        const user = response.data;
         isLoggedIn = true;
-        localStorage.setItem('currentUser', JSON.stringify(response));
-        currentUserSubject.next(response);
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        currentUserSubject.next(user);
         console.log(localStorage);
+        NotificationManager.success('Logged in successfully', 'Registered!');
+        return user;
+      } else {
+        console.log(response.message)
+        if(response.status == 409) {
+          NotificationManager.error(response.message, 'Error!');
+        } else if(response.status == 500) {
+          NotificationManager.error('Sorry cannot handle it now', 'Error!');
+        } else if(response.status == 500) {
+          NotificationManager.info('Try to log in again.', 'Registered succes');
+        }
       }
-      return response;
+      return null;
     })
     .catch(error => {
-      // this.notification.error(error.error.message);
+      NotificationManager.error(error.message, 'Error!');
       console.error(error)
     })
-}
-
-function login(credentials) {
-  return request('POST', `${environment.serverUrl}/login`, credentials)
+  }
+  
+  function login(credentials) {
+    return request('POST', `${environment.serverUrl}/login`, credentials)
     .then((response) => {
       console.log(response);
-      if(response){
+      if (response.data) {
+        const user = response.data;
         isLoggedIn = true;
-        localStorage.setItem('currentUser', JSON.stringify(response));
-        currentUserSubject.next(response);
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        currentUserSubject.next(user);
         console.log(localStorage);
+        NotificationManager.success('Logged in successfully', 'Logged in!');
+        return user;
       }
-      return response;
+      return null;
     })
     .catch(error => {
-      // this.notification.error(error.error.message);
+      NotificationManager.error(error.message, 'Error!');
       console.error(error)
     })
-};
-
-function logout() {
-  // let navigate = useNavigate();
-
-  console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!ktos zrobil logout');
-  return request('POST', `${environment.serverUrl}/logout`)
+  };
+  
+  function logout() {
+    // let navigate = useNavigate();
+    
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!ktos zrobil logout');
+    return request('POST', `${environment.serverUrl}/logout`)
     .then((response) => {
       console.log("czy ja tu wgl wchodze?")
       isLoggedIn = false;
       localStorage.removeItem('currentUser');
       currentUserSubject.next(null);
+      NotificationManager.warning('Logged out successfully', 'Logged out!');
       // musi tu być jakoś redirect zrobiony bo inaczej mi strona wysiada i musze conajmniej odświeżyć
     })
     .catch(error => {
       console.error(error);
+      NotificationManager.error(error.message, 'Error!');
     })
 };
 

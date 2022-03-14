@@ -23,15 +23,15 @@ async function request(method, url, data) {
         }
         
         if (res.status == 401){
-          console.error("mam 401 i wylogowuje typa")
+          console.error(`mam ${res.status} i wylogowuje typa`);
           auth.logout()
         }
         return res.data;
       })
       .catch(error => {
-        if(error.status === 401){
-          console.error("mam 401 i wylogowuje typa")
-          auth.logout();
+        if (error.status == 401){
+          console.error(`mam ${error.status} i wylogowuje typa`);
+          auth.logout()
         } else if(error.status === 403){
           console.info(error.message);
           // auth.logout();

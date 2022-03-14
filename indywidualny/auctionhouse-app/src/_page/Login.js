@@ -1,16 +1,20 @@
 import * as auth from '../_services/AuthService';
-import { useState } from 'react';
+import { useState, useReducer } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, Navigate } from "react-router-dom";
 import { NotificationManager } from 'react-notifications';
 
 function Login() {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
+  const [_, forceUpdate] = useReducer((x) => x + 1, 0);
   const navigate = useNavigate();
 
-  if (auth.currentUserValue()) {
-    navigate("/", { replace: true });
+  if (!!auth.currentUserValue()) {
+    console.log('dudu')
+    return (
+      <Navigate to={{ pathname: '/auctions' }} />
+    )
   }
 
   const handleSubmit = async e => {
@@ -20,12 +24,12 @@ function Login() {
       auth.login({ username, password })
         .then((res) => {
           if (res) {
-            navigate("/", { replace: true });
-            window.location.reload(false);
-            NotificationManager.success('Logged in successfully', 'Logged in!');
+            forceUpdate();
+            // navigate("/", { replace: true });
+            // window.location.reload(false);
+            // NotificationManager.success('Logged in successfully', 'Logged in!');
           } else {
-            console.log("NotificationManager", NotificationManager)
-            NotificationManager.error('Username and/or password are inncorect', 'Error!');
+            // NotificationManager.error('Username and/or password are inncorect', 'Error!');
           }
         })
         .catch((err) => {

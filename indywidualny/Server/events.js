@@ -13,18 +13,18 @@ function createRouter(db) {
         if (error) {
           console.error(error);
           if (error.code == "ER_DUP_ENTRY") {
-            res.status(500).json({ status: 409, message: "This username is taken" });
+            res.status(409).json({ status: 409, message: "This username is taken" });
           } else {
             res.status(500).json({ status: 500, message: "Couldn't create account user" });
           }
         } else {
           db.query(
-            'SELECT id_user, is_admin, name FROM user where name=? and password=?',
+            'SELECT id_user, is_admin, username FROM user where username=? and password=?',
             [req.body.username, req.body.password],
             (error, result) => {
               if (error) {
                 console.error(error);
-                res.status(500).json({ status: 500, message: 'No matching user ' });
+                res.status(404).json({ status: 404, message: 'No matching user ' });
               } else {
                 const userInfo = { id_user: result[0].id_user, is_admin: result[0].is_admin };
                 const token = jwt.sign(userInfo, 'the-super-strong-secrect', { expiresIn: '1h' });
@@ -67,7 +67,7 @@ function createRouter(db) {
 
   router.post('/api/logout', (req, res) => {
     res.status(200).json({ status: 200, message: "logOut - Front, I cannot do that, just clear user's cookies" });
-    // console.log("logOut - Front, I cannot do that, just clear user's cookies");
+    console.log("logOut");
   });
 
   function verifyToken(req, res, next) {
@@ -95,7 +95,7 @@ function createRouter(db) {
 
     }
     else {
-      res.status(403).json({ status: 403, message: 'Tak bez tokena prosisz?' });
+      res.status(401).json({ status: 401, message: 'Tak bez tokena prosisz?' });
       // res.status(403).json({status: 403, message: 'Błąd autoryzacji! Nie masz dostępu do rządanych treści!'})
     }
 
@@ -130,7 +130,7 @@ function createRouter(db) {
       }
     }
     else {
-      res.status(403).json({ status: 403, message: 'Tak bez tokena prosisz?' });
+      res.status(401).json({ status: 401, message: 'Tak bez tokena prosisz?' });
       // res.status(403).json({status: 403, message: 'Błąd autoryzacji! Nie masz dostępu do rządanych treści!'})
     }
 

@@ -20,10 +20,9 @@ function Login() {
     // OBSŁUGA BŁĘDÓW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! zajeta nazwa użyt.
     if (username && password && password === password_conf) {
       auth.register({ username, password })
-        .then((res) => {
-          if(res){
-            navigate("/");
-            NotificationManager.success('Logged in successfully', 'Registered!');
+        .then((user) => {
+          if(user){
+            navigate("/login");
           }
         })
     } else {
