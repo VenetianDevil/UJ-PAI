@@ -1,67 +1,77 @@
 import './App.css';
 import 'react-notifications/lib/notifications.css';
+import {React, useState} from 'react';
 import Login from './_page/Login';
 import Logout from './_components/Logout';
 import Register from './_page/Register';
-import {Auctions} from './_page/Auctions';
-import {Account} from './_page/Account';
+import { Auctions } from './_page/Auctions';
+import { Account } from './_page/Account';
 import OfferDetails from './_page/OfferDetails';
 import * as auth from './_services/AuthService';
 import {
   BrowserRouter as Router,
+  Link,
   Routes,
   Route,
-  Link,
-  useParams
+  Navigate
 } from "react-router-dom";
-import {Navbar, Container, Nav, Switch} from 'react-bootstrap';
+import { Navbar, Container, Nav } from 'react-bootstrap';
 import { NotificationContainer } from 'react-notifications';
 
 function App() {
+
+  const [loggedIn, setLoggedIn] = useState(!!auth.currentUserValue());
+
+  function setAppState() {
+    setLoggedIn(!!auth.currentUserValue());
+  }
+
   return (
     <div className="App">
-      <header className="App-header">
-        <Router>
+      <Router basename='/'>
+        <header className="App-header">
           <Navbar bg="dark" className="py-3" >
             <Container>
               <Navbar.Brand>
-                <Link to="/">
-                  <img src="/img/logo.png" height="60"  className="d-inline-block align-top" alt="Auction house logo"/>
+                <Link to="/" replace={true}>
+                  <img src="/img/logo.png" height="60" className="d-inline-block align-top" alt="Auction house logo" />
                 </Link>
-                </Navbar.Brand>
+              </Navbar.Brand>
               <Navbar.Toggle aria-controls="basic-navbar-nav" />
               <Navbar.Collapse id="basic-navbar-nav">
                 <Nav className="ms-auto">
-                  {!!auth.currentUserValue() ? <Navbar.Text>{auth.currentUserValue().username}</Navbar.Text> : null}
+                  {!!loggedIn ? <Navbar.Text>{auth.currentUserValue().username}</Navbar.Text> : null}
                   <Nav.Link href="/auctions">Auctions</Nav.Link>
-                  {!!auth.currentUserValue() && !auth.currentUserValue().is_admin ? <Nav.Link href="/account">My bets</Nav.Link> : ''}
-                  {!auth.currentUserValue() ? <Nav.Link href="/login">Login</Nav.Link> : <Logout></Logout>}
+                  {!!loggedIn && !auth.currentUserValue().is_admin ? <Nav.Link href="/account">My bets</Nav.Link> : ''}
+                  {!loggedIn ? <Nav.Link href="/login">Login</Nav.Link> : <Logout setAppState={setAppState}></Logout>}
                 </Nav>
               </Navbar.Collapse>
             </Container>
           </Navbar>
-        </Router>
-      </header>
+        </header>
 
-      <main>
-        <Container>
-          <Router>
+        <main>
+          <auth setAppState={setAppState}></auth>
+          <Container>
             <Routes>
-              <Route exact path='' element={<Auctions />} />
-              <Route exact path='/login' element={<Login />} />
-              <Route exact path='/register' element={<Register />} />
-              <Route exact path='/auctions' element={<Auctions />} />
-              <Route exact path='/offer-details/:id/:title' element={<OfferDetails />} />
-              <Route exact path='/account' element={<Account />} />
-            </Routes>
-          </Router>
-        </Container>
-      </main>
+              <Route path="/" element={<Navigate to="/auctions" />} />
+              <Route exact path='/auctions' element={<Auctions />}>
+              </Route>
+              <Route exact path='/auctions/:id/:title' element={<OfferDetails />} />
+              <Route exact path='/register' element={<Register setAppState={setAppState}/>} />
 
-      <footer className='d-grid align-content-center'>
-        <p className='text-center text-white'>Super stopka</p>
-      </footer>
-      <NotificationContainer/>
+              <Route exact path='/login' element={<Login setAppState={setAppState}/>} />
+              <Route exact path='/account' element={<Account />} />
+
+            </Routes>
+          </Container>
+        </main>
+
+        <footer className='d-grid align-content-center'>
+          <p className='text-center text-white'>Super stopka</p>
+        </footer>
+      </Router>
+      <NotificationContainer />
     </div>
   );
 }

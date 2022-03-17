@@ -4,7 +4,7 @@ const jwt = require('jsonwebtoken');
 function createRouter(db) {
   const router = express.Router();
 
-  router.post('/api/register', (req, res) => {
+  router.post('/api/users/register', (req, res) => {
 
     db.query(
       'INSERT INTO user (username, password) VALUES (?, ?)',
@@ -24,7 +24,7 @@ function createRouter(db) {
             (error, result) => {
               if (error) {
                 console.error(error);
-                res.status(404).json({ status: 404, message: 'No matching user ' });
+                res.status(404).json({ status: 404, message: 'Registration complited. Crashed while trying to log in new user.' });
               } else {
                 const userInfo = { id_user: result[0].id_user, is_admin: result[0].is_admin };
                 const token = jwt.sign(userInfo, 'the-super-strong-secrect', { expiresIn: '1h' });
@@ -37,7 +37,7 @@ function createRouter(db) {
     );
   })
 
-  router.post('/api/login', (req, res) => {
+  router.post('/api/users/login', (req, res) => {
 
     db.query(
       'SELECT * FROM user where username=?',
@@ -55,7 +55,7 @@ function createRouter(db) {
               const token = jwt.sign(userInfo, 'the-super-strong-secrect', { expiresIn: '1h' });
               res.status(200).json({ data: result, token, status: 200 });
             } else {
-              res.status(401).json({ status: 401, message: "Wrong password! " });
+              res.status(400).json({ status: 400, message: "Wrong password! " });
             }
           } else {
             res.status(404).json({ status: 404, message: 'No matching user with given name' });
@@ -65,7 +65,7 @@ function createRouter(db) {
     );
   })
 
-  router.post('/api/logout', (req, res) => {
+  router.get('/api/users/logout', (req, res) => {
     res.status(200).json({ status: 200, message: "logOut - Front, I cannot do that, just clear user's cookies" });
     console.log("logOut");
   });
@@ -87,15 +87,15 @@ function createRouter(db) {
           next();
         }
         else {
-          res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
+          res.status(401).json({ status: 401, message: 'Your token expired' });
         }
       } catch (err) {
-        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
+        res.status(401).json({ status: 401, message: 'Your token expired' });
       }
 
     }
     else {
-      res.status(401).json({ status: 401, message: 'Tak bez tokena prosisz?' });
+      res.status(401).json({ status: 401, message: 'How dare you ask without token!' });
       // res.status(403).json({status: 403, message: 'Błąd autoryzacji! Nie masz dostępu do rządanych treści!'})
     }
 
@@ -114,7 +114,7 @@ function createRouter(db) {
         const user = jwt.verify(bearerToken, 'the-super-strong-secrect');
 
         if (!user) {
-          res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
+          res.status(401).json({ status: 401, message: 'Your token expired' });
         }
         else {
           if (!!user.is_admin) {
@@ -122,11 +122,11 @@ function createRouter(db) {
             req.user = user;
             next();
           } else {
-            res.status(403).json({ status: 403, message: 'Nie masz prawa do tych treści; zostań adminem' });
+            res.status(403).json({ status: 403, message: "You don't have rights. Become an admin." });
           }
         }
       } catch (err) {
-        res.status(401).json({ status: 401, message: 'Twoja sesja wygasła' });
+        res.status(401).json({ status: 401, message: 'Your token expired' });
       }
     }
     else {
@@ -136,9 +136,9 @@ function createRouter(db) {
 
   }
 
-  router.get('/api/offers_active', (req, res, next) => {
+  router.get('/api/items', (req, res, next) => {
     db.query(
-      'SELECT * FROM offer where active = 1',
+      'SELECT * FROM item where active = 1',
       (error, result) => {
         if (error) {
           console.error(error);
@@ -150,9 +150,9 @@ function createRouter(db) {
     );
   });
 
-  router.get('/api/offer/:id', function (req, res, next) {
+  router.get('/api/items/:id_item', function (req, res, next) {
     db.query(
-      'SELECT * FROM offer where id_offer = ' + req.params.id,
+      'SELECT * FROM item where id_item = ' + req.params.id_item,
       (error, result) => {
         if (error) {
           console.log(error);
@@ -164,29 +164,56 @@ function createRouter(db) {
     );
   });
 
-  router.post('/api/bid', verifyToken, function (req, res, next) {
-    // console.log(req.user);
-    // console.log(req.body);
-    const today = new Date();
+  router.get('/api/items/:id_item/bids', verifyAdminToken, function (req, res, next) {
+    db.query(
+      'SELECT * FROM bid NATURAL left join user WHERE id_item=' + req.params.id_item,
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          res.status(200).json({ data: result, status: 200 });
+        }
+      }
+    );
+  });
+
+  // @TODO: add condition that price of this bid cannot be less than max that user already bid
+  router.post('/api/bids', verifyToken, function (req, res, next) {
 
     db.query(
-      'INSERT INTO bid (id_user, id_offer, value, date) values (?, ?, ?, ?)',
-      [req.user.id_user, req.body.id_offer, req.body.value, today],
+      'INSERT INTO bid (id_user, id_item, price) values (?, ?, ?)',
+      [req.user.id_user, req.body.id_item, req.body.price],
       (error, result) => {
         if (error) {
           console.log(error);
           res.status(500).json({ status: 500 });
         } else {
           console.log('update max bid id');
-          updateMaxBid(req.body.id_offer);
+          updateMaxBid(req.body.id_item, res);
         }
       }
     );
   });
 
-  router.get('/api/offer/:id/biddings', verifyAdminToken, function (req, res, next) {
+  router.patch('/api/bids', verifyToken, function (req, res, next) {
     db.query(
-      'SELECT * FROM auctionhouse.bid NATURAL left join auctionhouse.user WHERE id_offer=' + req.params.id,
+      'UPDATE bid SET retracted = true where id_item = ? AND id_user = ' + req.user.id_user,
+      [req.body.id_item],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          updateMaxBid(req.params.offerId, res)
+        }
+      }
+    );
+  });
+
+  router.get('/api/users/items', verifyToken, function (req, res, next) {
+    db.query(
+      'select * from bid natural left join item where (id_item, price) in (SELECT id_item, max(price) FROM bid natural left join item where id_user = ' + req.user.id_user + ' group by id_item)',
       (error, result) => {
         if (error) {
           console.log(error);
@@ -198,45 +225,16 @@ function createRouter(db) {
     );
   });
 
-  router.get('/api/userOffers', verifyToken, function (req, res, next) {
+  function updateMaxBid(offerId, res) {
     db.query(
-      'select * from auctionhouse.bid natural left join auctionhouse.offer where (id_offer, value) in (SELECT id_offer, max(value) FROM auctionhouse.bid natural left join auctionhouse.offer where id_user = ' + req.user.id_user + ' group by id_offer)',
-      (error, result) => {
-        if (error) {
-          console.log(error);
-          res.status(500).json({ status: 500 });
-        } else {
-          res.status(200).json({ data: result, status: 200 });
-        }
-      }
-    );
-  });
-
-  router.post('/api/retractBids/:offerId', verifyToken, function (req, res, next) {
-    db.query(
-      'UPDATE bid SET retracted = true where id_offer = ? AND id_user = ' + req.user.id_user,
-      [req.params.offerId],
-      (error, result) => {
-        if (error) {
-          console.log(error);
-          res.status(500).json({ status: 500 });
-        } else {
-          updateMaxBid(req.params.offerId)
-        }
-      }
-    );
-  });
-
-  function updateMaxBid(offerId) {
-    db.query(
-      'UPDATE offer SET winning_bid_id = (Select id_bid from bid where value = (SELECT max(value) FROM auctionhouse.bid where id_offer=? AND retracted <> 1)) where id_offer = ?', //uwzglednic bid.retracted -> nie liczą się juz
+      'UPDATE item SET winning_bid_id = (Select id_bid from bid where price = (SELECT max(price) FROM bid where id_item=? AND retracted <> 1)) where id_item = ?', //uwzglednic bid.retracted -> nie liczą się juz
       [offerId, offerId],
       (error, result) => {
         if (error) {
           console.log(error);
           res.status(500).json({ status: 500 });
         } else {
-          res.status(200).json({ data: result, status: 200 });
+          res.status(200).json({ status: 200 });
         }
       }
     )

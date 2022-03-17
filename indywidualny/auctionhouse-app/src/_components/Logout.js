@@ -1,18 +1,19 @@
 import * as auth from '../_services/AuthService';
+import { useState, useContext } from 'react';
 import { Nav, Form, Button, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from "react-router-dom";
 
-function Logout() {
+function Logout(props) {
   let navigate = useNavigate();
 
   const handleLogout = async e => {
     e.preventDefault();
-    e.preventDefault();
     console.log('user clicked log out');
-    auth.logout().then(() => {
+    return auth.logout().then(() => {
       console.log('i do loginu')
-      navigate("/login", { replace: true })
-      window.location.reload(false);
+      props.setAppState();
+      navigate("/login")
+      // window.location.reload(false);
     })
   }
 

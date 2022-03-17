@@ -2,13 +2,12 @@ import * as auth from '../_services/AuthService';
 import { useState, useReducer } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate, Navigate } from "react-router-dom";
-import { NotificationManager } from 'react-notifications';
 
-function Login() {
+function Login(props) {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
-  const [_, forceUpdate] = useReducer((x) => x + 1, 0);
-  const navigate = useNavigate();
+  // const [_, forceUpdate] = useReducer((x) => x + 1, 0);
+  // const navigate = useNavigate();
 
   if (!!auth.currentUserValue()) {
     console.log('dudu')
@@ -24,10 +23,8 @@ function Login() {
       auth.login({ username, password })
         .then((res) => {
           if (res) {
-            forceUpdate();
+            props.setAppState();
             // navigate("/", { replace: true });
-            // window.location.reload(false);
-            // NotificationManager.success('Logged in successfully', 'Logged in!');
           } else {
             // NotificationManager.error('Username and/or password are inncorect', 'Error!');
           }

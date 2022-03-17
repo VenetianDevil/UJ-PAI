@@ -1,6 +1,7 @@
 import { environment } from '../environment.ts';
-import * as auth from './AuthService';
+import * as auth from '../_services/AuthService';
 import { useNavigate } from "react-router-dom";
+import { NotificationManager } from 'react-notifications';
 
 async function request(method, url, data) {
   console.log('gonna fetch')
@@ -22,9 +23,14 @@ async function request(method, url, data) {
           console.info(res.message);
         }
         
-        if (res.status == 401){
+        if (res.status == 200 && (method == 'POST' || method == 'PATCH')){
+          NotificationManager.success('Your action has been saved', 'Success!');
+        }
+        else if (res.status == 401){
           console.error(`mam ${res.status} i wylogowuje typa`);
           auth.logout()
+        } else if (res.status == 500) {
+          NotificationManager.error('Please try again later.', 'Server Error!');
         }
         return res.data;
       })
@@ -45,31 +51,32 @@ async function request(method, url, data) {
 }
 
 function getUsers() {
-  return request('GET', `${environment.serverUrl}/users`);
+  console.info("Currently there is no such option")
+  // return request('GET', `${environment.serverUrl}/users`);
 };
 
 function getActiveOffers() {
-  return request('GET', `${environment.serverUrl}/offers_active`);
+  return request('GET', `${environment.serverUrl}/items`);
 };
 
 function getOffer(id) {
-  return request('GET', `${environment.serverUrl}/offer/${id}`);
-};
-
-function placeBid(bid) {
-  return request('POST', `${environment.serverUrl}/bid`, bid);
+  return request('GET', `${environment.serverUrl}/items/${id}`);
 };
 
 function getBiddingHistory(id){
-  return request('GET', `${environment.serverUrl}/offer/${id}/biddings`);
+  return request('GET', `${environment.serverUrl}/items/${id}/bids`);
 }
 
-function getUserOffers(){
-  return request('GET', `${environment.serverUrl}/userOffers`);
-}
+function placeBid(bid) {
+  return request('POST', `${environment.serverUrl}/bids`, bid);
+};
 
 function resignFromOffer(offerId) {
-  return request('POST', `${environment.serverUrl}/retractBids/${offerId}`);
+  return request('PATCH', `${environment.serverUrl}/bids`, {id_item: offerId});
 };
+
+function getUserOffers(){
+  return request('GET', `${environment.serverUrl}/users/items`);
+}
 
 export { getUsers, getActiveOffers, getOffer, placeBid, getBiddingHistory, getUserOffers, resignFromOffer };

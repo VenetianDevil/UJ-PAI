@@ -22,7 +22,7 @@ export class ItemUserOffer extends React.Component {
   async handleBidding(e) {
     e.preventDefault();
     console.log('bidding', this.state.bidVal);
-    await server.placeBid({ id_offer: this.offer.id_offer, value: this.state.bidVal })
+    await server.placeBid({ id_item: this.offer.id_item, price: this.state.bidVal })
       .then((data) => {
         this.handleClose();
       })
@@ -48,8 +48,8 @@ export class ItemUserOffer extends React.Component {
 
   async handleResignation(e) {
     e.preventDefault();
-    console.log('bidding', this.offer.id_offer);
-    await server.resignFromOffer(this.offer.id_offer)
+    console.log('bidding', this.offer.id_item);
+    await server.resignFromOffer(this.offer.id_item)
       .then((data) => {
         this.handleClose();
       })
@@ -76,7 +76,7 @@ export class ItemUserOffer extends React.Component {
                 <img src={this.offer.img_url}></img>)
             }
             <h3> {this.offer.title} </h3>
-            <p>{Number(this.offer.value).toFixed(2)} PLN </p>
+            <p>{Number(this.offer.price).toFixed(2)} PLN </p>
             <ButtonGroup>
               <Button role="link" variant="outline-primary" className='px-4' onClick={this.showBidModal}>BID</Button>
               {!this.offer.retracted ? <Button role="link" variant="outline-primary" className='px-4' onClick={this.showResignModal}>RETRACT</Button> : null}

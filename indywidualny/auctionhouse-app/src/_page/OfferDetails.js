@@ -4,8 +4,6 @@ import * as auth from '../_services/AuthService';
 import { Col, Row, Button, Modal, Form, Table } from 'react-bootstrap';
 import { Link, useParams, setState } from "react-router-dom";
 
-import '../_styles/offerDetails.css'
-
 function OfferDetails() {
   const { id, title } = useParams();
 
@@ -44,7 +42,7 @@ class OfferDetailsComponent extends React.Component {
       .then((data) => {
         console.log(data)
         data.sort((a, b) => {
-          return b.value - a.value;
+          return b.price - a.price;
         });
         this.setState({ admin: { bids: data, is_admin: 1 }, isLoading: false });
         console.log(this.state.admin.bids[0])
@@ -55,7 +53,7 @@ class OfferDetailsComponent extends React.Component {
   async handleBidding(e) {
     e.preventDefault();
     console.log('bidding', this.state.bidVal);
-    await server.placeBid({ id_offer: this.id, value: this.state.bidVal })
+    await server.placeBid({ id_item: this.id, price: this.state.bidVal })
       .then((data) => {
         this.handleClose();
       })
@@ -122,8 +120,8 @@ class OfferDetailsComponent extends React.Component {
                     <tr className={!!bid.retracted ? 'retracted_bid' : ''}>
                       <td>{bid.id_bid}</td>
                       <td>{bid.username}</td>
-                      <td>{Number(bid.value).toFixed(2)}</td>
-                      <td>{new Date(bid.date).toISOString().slice(0, 10)}</td>
+                      <td>{Number(bid.price).toFixed(2)}</td>
+                      <td>{new Date(bid.ts).toISOString().slice(0, 10)}</td>
                     </tr>
                   ) :
                     <tr className='text-center'><td colSpan={4}>No bids placed</td></tr>
