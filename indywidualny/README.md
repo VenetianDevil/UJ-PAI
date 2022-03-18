@@ -10,12 +10,24 @@ grant all privileges on auctionhouse.* to 'student'@'localhost';
 
 * Backend launch
 
+install node environment and other dependencies
+```
+npm i
+```
+run server
 ```
 node index.js
+or
+npm start
 ```
 
-* Front 
+* React run
 
+install React and other dependencies
+```
+npm i
+```
+run sever
 ```
 npm start
 ```

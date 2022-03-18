@@ -150,6 +150,20 @@ function createRouter(db) {
     );
   });
 
+  router.get('/api/items/admin', verifyAdminToken, (req, res, next) => {
+    db.query(
+      'SELECT * FROM item',
+      (error, result) => {
+        if (error) {
+          console.error(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          res.status(200).json({ data: result, status: 200 });
+        }
+      }
+    );
+  });
+
   router.get('/api/items/:id_item', function (req, res, next) {
     db.query(
       'SELECT * FROM item where id_item = ' + req.params.id_item,
@@ -159,6 +173,21 @@ function createRouter(db) {
           res.status(500).json({ status: 500 });
         } else {
           res.status(200).json({ data: result, status: 200 });
+        }
+      }
+    );
+  });
+
+  router.patch('/api/items/:id_item', verifyAdminToken, function (req, res, next) {
+    db.query(
+      'UPDATE item SET active = ? where id_item = ' + req.params.id_item,
+      [req.body.active],
+      (error, result) => {
+        if (error) {
+          console.log(error);
+          res.status(500).json({ status: 500 });
+        } else {
+          res.status(200).json({ status: 200 });
         }
       }
     );
@@ -178,22 +207,39 @@ function createRouter(db) {
     );
   });
 
-  // @TODO: add condition that price of this bid cannot be less than max that user already bid
   router.post('/api/bids', verifyToken, function (req, res, next) {
-
+    
+    // check if received bid price is higher than the current max bid placed by this user
     db.query(
-      'INSERT INTO bid (id_user, id_item, price) values (?, ?, ?)',
-      [req.user.id_user, req.body.id_item, req.body.price],
+      'SELECT max(price) FROM bid where id_item=? AND id_user=?',
+      [req.body.id_item, req.user.id_user],
       (error, result) => {
-        if (error) {
+        if(error) {
           console.log(error);
           res.status(500).json({ status: 500 });
         } else {
-          console.log('update max bid id');
-          updateMaxBid(req.body.id_item, res);
+          // if so, then add new bid
+          if (result[0]['max(price)'] == null || result[0]['max(price)'] < req.body.price) {
+            db.query(
+              'INSERT INTO bid (id_user, id_item, price) values (?, ?, ?)',
+              [req.user.id_user, req.body.id_item, req.body.price],
+              (error, result) => {
+                if (error) {
+                  console.log(error);
+                  res.status(500).json({ status: 500 });
+                } else {
+                  console.log('update max bid id');
+                  updateMaxBid(req.body.id_item, res);
+                }
+              }
+            );
+          } else { // if not tell that to user
+            console.log(error);
+            res.status(400).json({ status: 400, message: "You can't place bid with lower value than your highest one." });
+          }
         }
       }
-    );
+    )
   });
 
   router.patch('/api/bids', verifyToken, function (req, res, next) {
@@ -227,7 +273,7 @@ function createRouter(db) {
 
   function updateMaxBid(offerId, res) {
     db.query(
-      'UPDATE item SET winning_bid_id = (Select id_bid from bid where price = (SELECT max(price) FROM bid where id_item=? AND retracted <> 1)) where id_item = ?', //uwzglednic bid.retracted -> nie liczą się juz
+      'UPDATE item SET winning_bid_id = (Select id_bid from bid where price = (SELECT max(price) FROM bid where id_item=? AND retracted is null)) where id_item = ?', //uwzglednic bid.retracted -> nie liczą się juz
       [offerId, offerId],
       (error, result) => {
         if (error) {

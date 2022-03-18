@@ -5,7 +5,13 @@ import { Row } from 'react-bootstrap';
 
 export class Auctions extends React.Component {
 
-  state = { offers: [], isLoading: true };
+  constructor(props) {
+    super(props);
+    this.state = {
+      isAdmin : props.isAdmin,
+      offers: [],
+      isLoading: true };
+  }
 
   async getActiveOffers() {
     await server.getActiveOffers()
@@ -16,8 +22,24 @@ export class Auctions extends React.Component {
       .catch(e => console.log(e));
   }
 
+  async getAllOffers() {
+    await server.getAllOffers()
+    .then((data) => {
+      // console.log(data)
+      data.sort((a, b) => {
+        return Number(b.active) - Number(a.active);
+      });
+      this.setState({ offers: data, isLoading: false });
+    })
+    .catch(e => console.log(e));
+  }
+
   componentDidMount() {
-    this.getActiveOffers();
+    if(this.state.isAdmin){
+      this.getAllOffers();
+    } else {
+      this.getActiveOffers();
+    }
   }
 
   render() {

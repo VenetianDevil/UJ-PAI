@@ -21,9 +21,11 @@ import { NotificationContainer } from 'react-notifications';
 function App() {
 
   const [loggedIn, setLoggedIn] = useState(!!auth.currentUserValue());
+  const [isAdmin, setIsAdmin] = useState(!!auth.currentUserValue() && auth.currentUserValue().is_admin);
 
   function setAppState() {
     setLoggedIn(!!auth.currentUserValue());
+    setIsAdmin(!!auth.currentUserValue() && auth.currentUserValue().is_admin);
   }
 
   return (
@@ -51,11 +53,10 @@ function App() {
         </header>
 
         <main>
-          <auth setAppState={setAppState}></auth>
           <Container>
             <Routes>
               <Route path="/" element={<Navigate to="/auctions" />} />
-              <Route exact path='/auctions' element={<Auctions />}>
+              <Route exact path='/auctions' element={<Auctions isAdmin={isAdmin} />}>
               </Route>
               <Route exact path='/auctions/:id/:title' element={<OfferDetails />} />
               <Route exact path='/register' element={<Register setAppState={setAppState}/>} />

@@ -7,21 +7,45 @@ import { Navigate, Route, Routes } from 'react-router-dom'
 
 export class Account extends React.Component {
 
-  state = { offers: [], isLoading: true };
-  loggedIn = auth.currentUserValue() ? true : false;
+  constructor(props) {
+    super(props);
+    this.state = {
+      offers: [],
+      isLoading: true,
+      forceReload: null,
+      text: "nic"
+    };
+    this.loggedIn = auth.currentUserValue() ? true : false;
 
-  async getUserOffers() {
-    await server.getUserOffers()
-      .then((data) => {
-        console.log(data)
-        this.setState({ offers: data, isLoading: false });
-      })
-      .catch(e => console.log(e));
+    this.setStateByChild = this.setStateByChild.bind(this);
+    this.getUserOffers = this.getUserOffers.bind(this);
   }
 
   componentDidMount() {
     this.getUserOffers();
   }
+
+  componentDidUpdate() {
+    if(!!this.state.forceReload){
+      console.log('reload')
+      this.getUserOffers();
+      this.setState({ forceReload: null });
+    }
+  }
+
+  setStateByChild() {
+    this.setState({ forceReload: true });
+  }
+
+  async getUserOffers() {
+    await server.getUserOffers()
+      .then((data) => {
+        console.log("user offers", data);
+        this.setState({ offers: data, isLoading: false });
+      })
+      .catch(e => console.log(e));
+  }
+
 
   render() {
     const { offers, isLoading } = this.state;
@@ -43,12 +67,12 @@ export class Account extends React.Component {
         <Tabs defaultActiveKey="active" id="uncontrolled-tab-example" justify >
           <Tab eventKey="active" title="Active">
             <Row className='p-5'>
-              {offers.map(offer => { return (offer.active ? <ItemUserOffer offer={offer}></ItemUserOffer> : null) })}
+              {offers.map(offer => { return (offer.active ? <ItemUserOffer offer={offer} forceParentReload={this.setStateByChild}></ItemUserOffer> : null) })}
             </Row>
           </Tab>
           <Tab eventKey="closed" title="Closed">
             <Row className='p-5'>
-              {offers.map(offer => { return (!offer.active ? <ItemUserOffer offer={offer}></ItemUserOffer> : null) })}
+              {offers.map(offer => { return (!offer.active ? <ItemUserOffer offer={offer} forceParentReload={this.setStateByChild}></ItemUserOffer> : null) })}
             </Row>
           </Tab>
         </Tabs>

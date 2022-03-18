@@ -25,12 +25,13 @@ async function request(method, url, data) {
         
         if (res.status == 200 && (method == 'POST' || method == 'PATCH')){
           NotificationManager.success('Your action has been saved', 'Success!');
+        } else if (res.status == 400){
+          NotificationManager.info(res.message, 'Incorrect bid!');
         }
-        else if (res.status == 401){
+         else if (res.status == 401){
           console.error(`mam ${res.status} i wylogowuje typa`);
           auth.logout()
         } else if (res.status == 500) {
-          NotificationManager.error('Please try again later.', 'Server Error!');
         }
         return res.data;
       })
@@ -59,8 +60,16 @@ function getActiveOffers() {
   return request('GET', `${environment.serverUrl}/items`);
 };
 
+function getAllOffers() {
+  return request('GET', `${environment.serverUrl}/items/admin`);
+};
+
 function getOffer(id) {
   return request('GET', `${environment.serverUrl}/items/${id}`);
+};
+
+function changeItemStatus(id, active) {
+  return request('PATCH', `${environment.serverUrl}/items/${id}`, {active});
 };
 
 function getBiddingHistory(id){
@@ -71,7 +80,7 @@ function placeBid(bid) {
   return request('POST', `${environment.serverUrl}/bids`, bid);
 };
 
-function resignFromOffer(offerId) {
+function retractBidsOnOffer(offerId) {
   return request('PATCH', `${environment.serverUrl}/bids`, {id_item: offerId});
 };
 
@@ -79,4 +88,4 @@ function getUserOffers(){
   return request('GET', `${environment.serverUrl}/users/items`);
 }
 
-export { getUsers, getActiveOffers, getOffer, placeBid, getBiddingHistory, getUserOffers, resignFromOffer };
+export { getUsers, getActiveOffers, getAllOffers, getOffer, changeItemStatus, getBiddingHistory, placeBid, retractBidsOnOffer, getUserOffers };
