@@ -19,3 +19,13 @@ node index.js
 ```
 npm start
 ```
+
+Bug that can occur:
+```
+npm WARN read-shrinkwrap This version of npm is compatible with lockfileVersion@1, but package-lock.json was generated for lockfileVersion@2. I'll try to do my best with it!
+npm ERR! Cannot read property 'match' of undefined
+```
+Fix:
+```
+sudo rm -rf node_modules package-lock.json && npm install
+```
