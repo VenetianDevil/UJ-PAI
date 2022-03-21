@@ -1,6 +1,7 @@
 import { environment } from '../environment.ts';
-import * as auth from './AuthService';
+import * as auth from '../_services/AuthService';
 import { useNavigate } from "react-router-dom";
+import { NotificationManager } from 'react-notifications';
 
 async function request(method, url, data) {
   console.log('gonna fetch')
@@ -22,16 +23,22 @@ async function request(method, url, data) {
           console.info(res.message);
         }
         
-        if (res.status == 401){
-          console.error("mam 401 i wylogowuje typa")
+        if (res.status == 200 && (method == 'POST' || method == 'PATCH')){
+          NotificationManager.success('Your action has been saved', 'Success!');
+        } else if (res.status == 400){
+          NotificationManager.info(res.message, 'Incorrect bid!');
+        }
+         else if (res.status == 401){
+          console.error(`mam ${res.status} i wylogowuje typa`);
           auth.logout()
+        } else if (res.status == 500) {
         }
         return res.data;
       })
       .catch(error => {
-        if(error.status === 401){
-          console.error("mam 401 i wylogowuje typa")
-          auth.logout();
+        if (error.status == 401){
+          console.error(`mam ${error.status} i wylogowuje typa`);
+          auth.logout()
         } else if(error.status === 403){
           console.info(error.message);
           // auth.logout();
@@ -45,31 +52,40 @@ async function request(method, url, data) {
 }
 
 function getUsers() {
-  return request('GET', `${environment.serverUrl}/users`);
+  console.info("Currently there is no such option")
+  // return request('GET', `${environment.serverUrl}/users`);
 };
 
 function getActiveOffers() {
-  return request('GET', `${environment.serverUrl}/offers_active`);
+  return request('GET', `${environment.serverUrl}/items`);
+};
+
+function getAllOffers() {
+  return request('GET', `${environment.serverUrl}/items/admin`);
 };
 
 function getOffer(id) {
-  return request('GET', `${environment.serverUrl}/offer/${id}`);
+  return request('GET', `${environment.serverUrl}/items/${id}`);
 };
 
-function placeBid(bid) {
-  return request('POST', `${environment.serverUrl}/bid`, bid);
+function changeItemStatus(id, active) {
+  return request('PATCH', `${environment.serverUrl}/items/${id}`, {active});
 };
 
 function getBiddingHistory(id){
-  return request('GET', `${environment.serverUrl}/offer/${id}/biddings`);
+  return request('GET', `${environment.serverUrl}/items/${id}/bids`);
 }
 
-function getUserOffers(){
-  return request('GET', `${environment.serverUrl}/userOffers`);
-}
-
-function resignFromOffer(offerId) {
-  return request('POST', `${environment.serverUrl}/retractBids/${offerId}`);
+function placeBid(bid) {
+  return request('POST', `${environment.serverUrl}/bids`, bid);
 };
 
-export { getUsers, getActiveOffers, getOffer, placeBid, getBiddingHistory, getUserOffers, resignFromOffer };
+function retractBidsOnOffer(offerId) {
+  return request('PATCH', `${environment.serverUrl}/bids`, {id_item: offerId});
+};
+
+function getUserOffers(){
+  return request('GET', `${environment.serverUrl}/users/items`);
+}
+
+export { getUsers, getActiveOffers, getAllOffers, getOffer, changeItemStatus, getBiddingHistory, placeBid, retractBidsOnOffer, getUserOffers };

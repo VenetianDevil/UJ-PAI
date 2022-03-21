@@ -1,17 +1,17 @@
 import * as auth from '../_services/AuthService';
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from "react-router-dom";
 import { NotificationManager } from 'react-notifications';
 
-function Login() {
+function Register(props) {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
   const [password_conf, setPasswordConf] = useState();
 
   let navigate = useNavigate();
 
-  if(auth.currentUserValue()){
+  if (!!props.loggedIn) {
     navigate("/");
   }
 
@@ -19,11 +19,11 @@ function Login() {
     e.preventDefault();
     // OBSŁUGA BŁĘDÓW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! zajeta nazwa użyt.
     if (username && password && password === password_conf) {
-      auth.register({ username, password })
-        .then((res) => {
-          if(res){
-            navigate("/");
-            NotificationManager.success('Logged in successfully', 'Registered!');
+      return auth.register({ username, password })
+        .then((user) => {
+          if (user) {
+            props.setAppState();
+            navigate("/login");
           }
         })
     } else {
@@ -57,7 +57,6 @@ function Login() {
               Register
             </Button>
           </Form>
-
           <p className="text-center mt-4">
             <Link to="/login" >Already have an account? Login now!</Link>
           </p>
@@ -68,4 +67,4 @@ function Login() {
   );
 }
 
-export default Login;
+export default Register;

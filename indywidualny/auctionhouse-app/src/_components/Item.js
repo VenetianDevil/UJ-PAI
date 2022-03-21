@@ -11,18 +11,21 @@ const toKebabCase = str =>
 
 export class Item extends React.Component {
 
-  offer = this.props.offer;
+  constructor(props){
+    super(props);
+    this.offer = props.offer;
+  }
 
   render() {
-    // console.log(this.offer);
+    console.log(this.offer);
 
     return (
-      <Col xs={12} sm={6} lg={4} className="mb-4">
+      <Col xs={12} sm={6} lg={4} className={"mb-4 deactivatedSignWrapper " + (this.offer.active ? '' : 'deactivated')}>
         <div className="offer_item border-0">
           <img src={this.offer.img_url}></img>
           <h3> {this.offer.title} </h3>
-          {/* to={"/offer-details/" + this.offer.id_offer + "/" + toKebabCase(this.offer.title)}  */}
-          <Link to={`/offer-details/${this.offer.id_offer}/${toKebabCase(this.offer.title)}`}>
+          {/* to={"/offer-details/" + this.offer.id_item + "/" + toKebabCase(this.offer.title)}  */}
+          <Link to={`${this.offer.id_item}/${toKebabCase(this.offer.title)}`} >
             <Button role="link" variant="outline-primary" className='px-4'>View details</Button>
           </Link>
         </div>
