@@ -46,7 +46,7 @@ function Login(props) {
 
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Name *</Form.Label>
-              <Form.Control type="text" placeholder="Name" onChange={e => setUserName(e.target.value)} />
+              <Form.Control type="text" placeholder="Name" onChange={e => setUserName(e.target.value.trim())} />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">

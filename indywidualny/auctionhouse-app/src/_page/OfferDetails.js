@@ -126,8 +126,8 @@ class OfferDetailsComponent extends React.Component {
     return (
       <section className='offer-details my-5'>
         <Row className='px-md-5 py-5'>
-          <Col xs={12} md={6} className={"col-desc deactivatedSignWrapper " + (offer.active ? '' : 'deactivated')}>
-            <div className='px-4 text-center'>
+          <Col xs={12} md={6} className={"col-desc deactivatedSignWrapper mb-4 " + (offer.active ? '' : 'deactivated')}>
+            <div className='p-4 text-center'>
               <h2 className='text-center'>{offer.title}</h2>
               <p className='my-5'><i>{offer.description}</i></p>
               {!!auth.currentUserValue() ?
@@ -137,7 +137,7 @@ class OfferDetailsComponent extends React.Component {
                 <Link to="/login"><Button role="button" variant="primary">BID</Button></Link>}
             </div>
           </Col>
-          <Col xs={12} md={6}>
+          <Col xs={12} md={6} className="d-flex px-0 px-md-3 mb-4">
             <img src={offer.img_url}></img>
           </Col>
           {admin.is_admin ?

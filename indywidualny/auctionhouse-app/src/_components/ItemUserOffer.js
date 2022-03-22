@@ -74,7 +74,7 @@ export class ItemUserOffer extends React.Component {
 
   render() {
     return (
-      <Col xs={12} sm={6} lg={4} className="p-0">
+      <Col xs={12} md={6} lg={4} className="p-0">
         <div className={'offer_item ' + (!this.state.offer.active ? ' offer-not-active' : '')}>
           <div>
             {this.state.offer.winning_bid_id && this.state.offer.winning_bid_id == this.state.offer.id_bid ?

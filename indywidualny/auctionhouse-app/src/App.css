@@ -15,6 +15,9 @@ a {
   text-decoration: none !important;
 }
 
+.navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .show>.nav-link {
+  color: #ebc492 !important}
+
 h2, .h2 {
   font-family: Aclonica;
   font-size: 3.75rem !important;
@@ -312,13 +315,13 @@ form input {
   }
 }
 
-@media (max-width: 768px) {
+/* @media (max-width: 768px) {
   .ribbon-top-right span {
     left: 10px;
   }
-}
+} */
 
-@media (max-width: 576px) {
+@media (max-width: 768px) {
   .ribbon-top-right span {
     right: -55px;
     left: auto;

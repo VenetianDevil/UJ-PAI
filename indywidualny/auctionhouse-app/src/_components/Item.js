@@ -17,7 +17,7 @@ export class Item extends React.Component {
   }
 
   render() {
-    console.log(this.offer);
+    // console.log(this.offer);
 
     return (
       <Col xs={12} sm={6} lg={4} className={"mb-4 deactivatedSignWrapper " + (this.offer.active ? '' : 'deactivated')}>

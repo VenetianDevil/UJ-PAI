@@ -1,6 +1,8 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
 
+// @FIXME DONT RETURN PASSWORD TO CLIENT
+// @TODO hashowanie haseł
 function createRouter(db) {
   const router = express.Router();
 
