@@ -27,6 +27,7 @@ function App(props) {
   const handleSelect = (href) => { setCurrentUrl(href) };
 
   function setAppState() {
+    console.log('app - update state', !!auth.currentUserValue(), !!auth.currentUserValue() && auth.currentUserValue().is_admin)
     setLoggedIn(!!auth.currentUserValue());
     setIsAdmin(!!auth.currentUserValue() && auth.currentUserValue().is_admin);
   }
@@ -38,7 +39,7 @@ function App(props) {
           <Container>
             <Nav className='w-100' activeKey={currentUrl} onSelect={handleSelect}> {/*  */}
               <Navbar.Brand>
-                <Nav.Link to="/" href="/auctions" replace={true}>
+                <Nav.Link to="/" href="/auctions">
                   <img src="/img/logo.png" height="60" className="d-inline-block align-top" alt="Auction house logo" />
                 </Nav.Link>
               </Navbar.Brand>

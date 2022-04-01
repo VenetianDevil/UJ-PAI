@@ -1,70 +1,68 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
 
-// @FIXME DONT RETURN PASSWORD TO CLIENT
-// @TODO hashowanie haseł
 function createRouter(db) {
   const router = express.Router();
 
   router.post('/api/users/register', (req, res) => {
-
-    db.query(
-      'INSERT INTO user (username, password) VALUES (?, ?)',
-      [req.body.username, req.body.password],
-      (error, result) => {
-        if (error) {
-          console.error(error);
-          if (error.code == "ER_DUP_ENTRY") {
-            res.status(409).json({ status: 409, message: "This username is taken" });
-          } else {
-            res.status(500).json({ status: 500, message: "Couldn't create account user" });
-          }
-        } else {
-          db.query(
-            'SELECT id_user, is_admin, username FROM user where username=? and password=?',
-            [req.body.username, req.body.password],
-            (error, result) => {
-              if (error) {
-                console.error(error);
-                res.status(404).json({ status: 404, message: 'Registration complited. Crashed while trying to log in new user.' });
-              } else {
-                const userInfo = { id_user: result[0].id_user, is_admin: result[0].is_admin };
-                const token = jwt.sign(userInfo, 'the-super-strong-secrect', { expiresIn: '1h' });
-                res.status(200).json({ data: result, token, status: 200 });
-              }
+    
+    bcrypt.hash(req.body.password, saltRounds, function (err, hash) {
+    
+      db.query(
+        'INSERT INTO user (username, password) VALUES (?, ?)',
+        [hash, req.body.username],
+        (error, result) => {
+          if (error) {
+            console.error(error);
+            if (error.code == "ER_DUP_ENTRY") {
+              res.status(409).json({ status: 409, message: "This username is taken" });
+            } else {
+              res.status(500).json({ status: 500, message: "Couldn't create account user" });
             }
-          )
+          } else {
+            login(req, res);
+          }
         }
-      }
-    );
+      );
+    })
   })
 
-  router.post('/api/users/login', (req, res) => {
-
+  function login(req, res) {
     db.query(
       'SELECT * FROM user where username=?',
       [req.body.username],
       (error, result) => {
         if (error) {
           console.error(error);
-          res.status(404).json({ status: 404, message: 'No matching user with given name' });
+          res.status(500).json({ status: 500, message: 'Please try later' });
         } else {
           if (result[0]) {
-            console.log(result[0].password, req.body.password);
-            console.log(result[0].password == req.body.password);
-            if (result[0].password == req.body.password) {
-              const userInfo = { id_user: result[0].id_user, is_admin: result[0].is_admin };
-              const token = jwt.sign(userInfo, 'the-super-strong-secrect', { expiresIn: '1h' });
-              res.status(200).json({ data: result, token, status: 200 });
-            } else {
-              res.status(400).json({ status: 400, message: "Wrong password! " });
-            }
+            bcrypt.compare(req.body.password, result[0].password, function(err, comp_bool) {
+              if(comp_bool){
+                const userInfo = { id_user: result[0].id_user, is_admin: result[0].is_admin };
+                const token = jwt.sign(userInfo, 'the-super-strong-secrect', { expiresIn: '1h' });
+                const user = {
+                  id_user: result[0].id_user,
+                  username: result[0].username,
+                  is_admin: result[0].is_admin,
+                }
+                res.status(200).json({ data: user, token, status: 200 });
+              } else {
+                res.status(400).json({ status: 400, message: "Wrong password! " });
+              }
+            })
           } else {
             res.status(404).json({ status: 404, message: 'No matching user with given name' });
           }
         }
       }
     );
+  }
+
+  router.post('/api/users/login', (req, res) => {
+    login(req, res)
   })
 
   router.get('/api/users/logout', (req, res) => {
@@ -210,13 +208,13 @@ function createRouter(db) {
   });
 
   router.post('/api/bids', verifyToken, function (req, res, next) {
-    
+
     // check if received bid price is higher than the current max bid placed by this user
     db.query(
       'SELECT max(price) FROM bid where id_item=? AND id_user=?',
       [req.body.id_item, req.user.id_user],
       (error, result) => {
-        if(error) {
+        if (error) {
           console.log(error);
           res.status(500).json({ status: 500 });
         } else {

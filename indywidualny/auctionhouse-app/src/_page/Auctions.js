@@ -54,7 +54,7 @@ export class Auctions extends React.Component {
       <section>
         <h2 className='text-center my-5'>Offers</h2>
         <Row className='px-md-5'>
-          {offers.map(offer => <Item offer={offer}></Item>)}
+          {offers.map(offer => <Item key={offer.id_offer} offer={offer}></Item>)}
         </Row>
       </section>
     );

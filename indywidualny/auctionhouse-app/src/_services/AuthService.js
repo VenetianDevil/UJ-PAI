@@ -36,7 +36,7 @@ async function request(method, url, data) {
 
         if (res.status == 200) {
           if (res.token) {
-            res.data[0].token = res.token;
+            res.data.token = res.token;
           }
 
           return res.data;
@@ -61,7 +61,7 @@ async function request(method, url, data) {
 
 function currentUserValue() {
   // console.log(currentUserSubject);
-  return currentUserSubject.value ? currentUserSubject.value[0] : null;
+  return currentUserSubject.value ? currentUserSubject.value : null;
 }
 
 async function register(credentials) {

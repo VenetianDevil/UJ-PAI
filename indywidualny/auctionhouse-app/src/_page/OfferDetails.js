@@ -3,6 +3,8 @@ import * as server from '../_services/ServerService';
 import * as auth from '../_services/AuthService';
 import { Col, Row, Button, Modal, Form, Table } from 'react-bootstrap';
 import { Link, useParams, setState } from "react-router-dom";
+import { BidModalComponent } from '../_components/BidModalComponent';
+import { ItemStatusModalComponent } from '../_components/ItemStatusModalComponent';
 
 function OfferDetails() {
   const { id, title } = useParams();
@@ -20,9 +22,8 @@ class OfferDetailsComponent extends React.Component {
     super(props);
     this.state = {
       offer: {},
-      bidVal: 1000,
-      show: false,
-      show2: false,
+      showBidModal: false,
+      showStatusModal: false,
       isLoading: true,
       admin: {
         bids: [],
@@ -31,12 +32,10 @@ class OfferDetailsComponent extends React.Component {
     };
     this.id = this.props.id;
 
-    this.handleBid = this.handleBid.bind(this);
-    this.handleBidding = this.handleBidding.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.showBidModal = this.showBidModal.bind(this);
     this.showStatusModal = this.showStatusModal.bind(this);
-    this.changeItemStatus = this.changeItemStatus.bind(this);
+    this.forceUpdate = this.forceUpdate.bind(this)
   }
 
   componentDidMount() {
@@ -52,6 +51,10 @@ class OfferDetailsComponent extends React.Component {
       this.getOffer();
       this.setState({ forceUpdate: false });
     }
+  }
+
+  forceUpdate() {
+    this.setState({ forceUpdate: true });
   }
 
   async getOffer() {
@@ -77,42 +80,18 @@ class OfferDetailsComponent extends React.Component {
       .catch(e => console.log(e));
   }
 
-  async handleBidding(e) {
-    e.preventDefault();
-    console.log('bidding', this.state.bidVal);
-    await server.placeBid({ id_item: this.id, price: this.state.bidVal })
-      .then((data) => {
-        this.handleClose();
-      })
-  }
-
-  handleBid(e) {
-    e.preventDefault();
-    this.setState({ bidVal: e.target.value })
-  }
-
   handleClose() {
     console.log('close')
-    this.setState({ bidVal: null, show: false, show2: false })
+    this.setState({ showBidModal: false, showStatusModal: false })
   }
 
   showBidModal() {
-    this.setState({ show: true });
+    this.setState({ showBidModal: true });
   }
 
   showStatusModal() {
-    console.log('show2')
-    this.setState({ show2: true });
-  }
-
-  async changeItemStatus(e) {
-    e.preventDefault();
-    await server.changeItemStatus(this.state.offer.id_item, !this.state.offer.active)
-      .then((data) => {
-        this.handleClose();
-        this.setState({ forceUpdate: true });
-      })
-
+    console.log('showStatusModal')
+    this.setState({ showStatusModal: true });
   }
 
   render() {
@@ -153,7 +132,7 @@ class OfferDetailsComponent extends React.Component {
                 </thead>
                 <tbody>
                   {!!admin.bids.length ? admin.bids.map(bid =>
-                    <tr className={!!bid.retracted ? 'retracted_bid' : ''}>
+                    <tr key={bid.id_bid} className={!!bid.retracted ? 'retracted_bid' : ''}>
                       <td>{bid.id_bid}</td>
                       <td>{bid.username}</td>
                       <td>{Number(bid.price).toFixed(2)}</td>
@@ -169,38 +148,10 @@ class OfferDetailsComponent extends React.Component {
           }
         </Row>
 
-        <Modal show={this.state.show} onHide={this.handleClose} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>{offer.title}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <Form onSubmit={this.handleBidding}>
+        <BidModalComponent show={this.state.showBidModal} onHide={this.handleClose} offer={offer}></BidModalComponent>
 
-              <Form.Group className="mb-3" controlId="formBasicEmail">
-                <Form.Label>bid val *</Form.Label>
-                <Form.Control type="number" step="0.01" placeholder="100 000" onChange={this.handleBid} />
-              </Form.Group>
+        <ItemStatusModalComponent show={this.state.showStatusModal} onHide={this.handleClose} offer={offer} forceUpdate={this.forceUpdate}></ItemStatusModalComponent>
 
-              <Button variant="primary" type="submit" className='w-100'>
-                BID
-              </Button>
-            </Form>
-          </Modal.Body>
-        </Modal>
-
-        <Modal show={this.state.show2} onHide={this.handleClose} centered>
-          <Modal.Header closeButton>
-            <Modal.Title>{offer.title}</Modal.Title>
-          </Modal.Header>
-          <Modal.Body>
-            <p>Are you sure you want to {offer.active ? 'close' : 'open'} this auction?</p>
-            <Form onSubmit={this.changeItemStatus}>
-              <Button variant="primary" type="submit" className='w-100'>
-                {offer.active ? 'CLOSE' : 'OPEN'} AUCTION
-              </Button>
-            </Form>
-          </Modal.Body>
-        </Modal>
       </section>
     );
   }

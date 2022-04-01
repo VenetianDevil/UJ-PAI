@@ -3,11 +3,15 @@ import { useState, useContext } from 'react';
 import { Form, Button, Row, Col } from 'react-bootstrap';
 import { Link, useNavigate } from "react-router-dom";
 import { NotificationManager } from 'react-notifications';
+var _ = require('lodash');
 
 function Register(props) {
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
   const [password_conf, setPasswordConf] = useState();
+  const setUserNameDebounce = _.debounce(setUserName, 500);
+  const setPasswordDebounce = _.debounce(setPassword, 500);
+  const setPasswordConfDebounce = _.debounce(setPasswordConf, 500);
 
   let navigate = useNavigate();
 
@@ -15,6 +19,7 @@ function Register(props) {
     navigate("/");
   }
 
+  // @TODO add password regex validation - no spaces and what not
   const handleSubmit = async e => {
     e.preventDefault();
     // OBSŁUGA BŁĘDÓW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! zajeta nazwa użyt.
@@ -27,7 +32,7 @@ function Register(props) {
           }
         })
     } else {
-      // 
+      NotificationManager.error("Password and password confirmation are not the same", "Error in data!");
     }
   }
 
@@ -40,17 +45,17 @@ function Register(props) {
 
             <Form.Group className="mb-3" controlId="formBasicEmail">
               <Form.Label>Name *</Form.Label>
-              <Form.Control type="text" placeholder="Name" onChange={e => setUserName(e.target.value.trim())} />
+              <Form.Control type="text" placeholder="Name" onChange={e => setUserNameDebounce(e.target.value.trim())} />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
               <Form.Label>Password *</Form.Label>
-              <Form.Control type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+              <Form.Control type="password" placeholder="Password" onChange={e => setPasswordDebounce(e.target.value)} />
             </Form.Group>
 
             <Form.Group className="mb-3" controlId="formBasicPassword">
               <Form.Label>Password *</Form.Label>
-              <Form.Control type="password" placeholder="Password" onChange={e => setPasswordConf(e.target.value)} />
+              <Form.Control type="password" placeholder="Password" onChange={e => setPasswordConfDebounce(e.target.value)} />
             </Form.Group>
 
             <Button variant="secondary" type="submit" className='w-100'>

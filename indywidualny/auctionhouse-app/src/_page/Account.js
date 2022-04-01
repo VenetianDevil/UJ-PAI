@@ -67,12 +67,12 @@ export class Account extends React.Component {
         <Tabs defaultActiveKey="active" id="uncontrolled-tab-example" justify >
           <Tab eventKey="active" title="Active">
             <Row className='p-5'>
-              {offers.map(offer => { return (offer.active ? <ItemUserOffer offer={offer} forceParentReload={this.setStateByChild}></ItemUserOffer> : null) })}
+              {offers.map(offer => { return (offer.active ? <ItemUserOffer key={offer.id_offer} offer={offer} forceParentReload={this.setStateByChild}></ItemUserOffer> : null) })}
             </Row>
           </Tab>
           <Tab eventKey="closed" title="Closed">
             <Row className='p-5'>
-              {offers.map(offer => { return (!offer.active ? <ItemUserOffer offer={offer} forceParentReload={this.setStateByChild}></ItemUserOffer> : null) })}
+              {offers.map(offer => { return (!offer.active ? <ItemUserOffer key={offer.id_offer} offer={offer} forceParentReload={this.setStateByChild}></ItemUserOffer> : null) })}
             </Row>
           </Tab>
         </Tabs>
