@@ -50,3 +50,12 @@ cd server && npm start
 ```
 npm start (http://localhost:3001/)
 ```
+
+# Example accounts
+admin account
+login: Karolina
+pass: admin
+
+user account
+login: Tomek
+pass: tom

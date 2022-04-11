@@ -4,6 +4,7 @@ import * as auth from '../_services/AuthService';
 import { Col, Row, Button, Modal, Form, Tabs, Tab } from 'react-bootstrap';
 import { ItemUserOffer } from '../_components/ItemUserOffer';
 import { Navigate, Route, Routes } from 'react-router-dom'
+import { LoaderComponent } from '../_components/LoaderComponent';
 
 export class Account extends React.Component {
 
@@ -58,7 +59,7 @@ export class Account extends React.Component {
     }
 
     if (isLoading) {
-      return null;
+      return (<LoaderComponent></LoaderComponent>)
     }
 
     return (

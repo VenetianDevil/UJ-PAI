@@ -2,6 +2,12 @@ body {
   font-family: Roboto, sans-serif !important;
 }
 
+#root>.App {
+  display: grid;
+  height: 100vh;
+  grid-template-rows: 168px auto 350px;
+}
+
 :focus {
   box-shadow: none !important;
 }
@@ -16,13 +22,20 @@ a {
 }
 
 .navbar-light .navbar-nav .nav-link.active, .navbar-light .navbar-nav .show>.nav-link {
-  color: #ebc492 !important}
+  color: #ebc492 !important
+}
 
 h2, .h2 {
   font-family: Aclonica;
   font-size: 3.75rem !important;
   font-weight: 400;
   color: #b29a36;
+}
+
+/* ------------------------------ header */
+
+.App-header {
+  margin-bottom: 50px;
 }
 
 /* -------------------------------- navbar */
@@ -106,7 +119,7 @@ h2, .h2 {
   background-color: rgb(255, 180, 180);
 }
 
-.deactivatedSignWrapper{
+.deactivatedSignWrapper {
   position: relative;
 }
 
@@ -120,6 +133,7 @@ h2, .h2 {
   transform: rotate(45deg);
   top: 20%;
 }
+
 /* ------------------------------------------ btn */
 
 .btn {
@@ -257,11 +271,11 @@ form input {
 }
 
 .ribbon.red::after,
-.ribbon.red::before{
+.ribbon.red::before {
   border: 5px solid #9e2020 !important;
 }
 
-.ribbon.red span{
+.ribbon.red span {
   background-color: #db3434 !important;
 }
 

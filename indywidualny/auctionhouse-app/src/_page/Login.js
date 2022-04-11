@@ -41,7 +41,7 @@ function Login(props) {
   }
 
   return (
-    <section className='my-5'>
+    <section>
       <Row>
         <Col xs={12} md={{ span: 6, offset: 3 }}>
           {/* <h2> Login </h2> */}

@@ -5,6 +5,7 @@ import { Col, Row, Button, Modal, Form, Table } from 'react-bootstrap';
 import { Link, useParams, setState } from "react-router-dom";
 import { BidModalComponent } from '../_components/BidModalComponent';
 import { ItemStatusModalComponent } from '../_components/ItemStatusModalComponent';
+import { LoaderComponent } from '../_components/LoaderComponent';
 
 function OfferDetails() {
   const { id, title } = useParams();
@@ -99,7 +100,7 @@ class OfferDetailsComponent extends React.Component {
     console.log('admin', admin);
 
     if (isLoading) {
-      return null;
+      return (<LoaderComponent></LoaderComponent>)
     }
 
     return (

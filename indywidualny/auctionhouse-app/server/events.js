@@ -251,7 +251,7 @@ function createRouter(db) {
           console.log(error);
           res.status(500).json({ status: 500 });
         } else {
-          updateMaxBid(req.params.offerId, res)
+          updateMaxBid(req.body.id_item, res)
         }
       }
     );
@@ -271,10 +271,10 @@ function createRouter(db) {
     );
   });
 
-  function updateMaxBid(offerId, res) {
+  function updateMaxBid(itemId, res) {
     db.query(
-      'UPDATE item SET winning_bid_id = (Select id_bid from bid where price = (SELECT max(price) FROM bid where id_item=? AND retracted is null)) where id_item = ?', //uwzglednic bid.retracted -> nie liczą się juz
-      [offerId, offerId],
+      'UPDATE item SET winning_bid_id = (Select id_bid from bid where price = (SELECT max(price) FROM bid where id_item=? AND retracted is null) AND id_item = ?) where id_item = ?', //uwzglednic bid.retracted -> nie liczą się juz
+      [itemId, itemId, itemId],
       (error, result) => {
         if (error) {
           console.log(error);
@@ -284,7 +284,7 @@ function createRouter(db) {
         }
       }
     )
-  }
+  }  
 
   return router;
 }

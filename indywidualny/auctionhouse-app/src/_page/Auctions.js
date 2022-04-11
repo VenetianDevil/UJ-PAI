@@ -2,6 +2,7 @@ import React from 'react';
 import * as server from '../_services/ServerService';
 import { Item } from '../_components/Item';
 import { Row } from 'react-bootstrap';
+import { LoaderComponent } from '../_components/LoaderComponent';
 
 export class Auctions extends React.Component {
 
@@ -47,7 +48,7 @@ export class Auctions extends React.Component {
     console.log(isLoading)
 
     if (isLoading) {
-      return null;
+      return (<LoaderComponent></LoaderComponent>)
     }
 
     return (
