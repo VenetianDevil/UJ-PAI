@@ -271,6 +271,7 @@ function createRouter(db) {
     );
   });
 
+  // @FIXME return info when there is more than one with max price (ignore new, leave first bet)
   function updateMaxBid(itemId, res) {
     db.query(
       'UPDATE item SET winning_bid_id = (Select id_bid from bid where price = (SELECT max(price) FROM bid where id_item=? AND retracted is null) AND id_item = ?) where id_item = ?', //uwzglednic bid.retracted -> nie liczą się juz
