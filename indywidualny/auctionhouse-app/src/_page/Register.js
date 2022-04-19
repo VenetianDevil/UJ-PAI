@@ -6,6 +6,7 @@ import { NotificationManager } from 'react-notifications';
 var _ = require('lodash');
 
 function Register(props) {
+  const [loading, setLoading] = useState(false);
   const [username, setUserName] = useState();
   const [password, setPassword] = useState();
   const [password_conf, setPasswordConf] = useState();
@@ -24,8 +25,11 @@ function Register(props) {
     e.preventDefault();
     // OBSŁUGA BŁĘDÓW!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! zajeta nazwa użyt.
     if (username && password && password === password_conf) {
+      setLoading(true);
+      console.log({ username, password })
       return auth.register({ username, password })
-        .then((user) => {
+      .then((user) => {
+          setLoading(false);
           if (user) {
             props.setAppState();
             navigate("/login");
@@ -58,7 +62,7 @@ function Register(props) {
               <Form.Control type="password" placeholder="Password" onChange={e => setPasswordConfDebounce(e.target.value)} />
             </Form.Group>
 
-            <Button variant="secondary" type="submit" className='w-100'>
+            <Button variant="secondary" type="submit" className='w-100' disabled={loading}>
               Register
             </Button>
           </Form>

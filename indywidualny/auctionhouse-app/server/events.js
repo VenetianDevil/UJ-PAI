@@ -12,7 +12,7 @@ function createRouter(db) {
     
       db.query(
         'INSERT INTO user (username, password) VALUES (?, ?)',
-        [hash, req.body.username],
+        [req.body.username, hash],
         (error, result) => {
           if (error) {
             console.error(error);
@@ -271,7 +271,6 @@ function createRouter(db) {
     );
   });
 
-  // @FIXME return info when there is more than one with max price (ignore new, leave first bet)
   function updateMaxBid(itemId, res) {
     db.query(
       'UPDATE item SET winning_bid_id = (Select id_bid from bid where price = (SELECT max(price) FROM bid where id_item=? AND retracted is null) AND id_item = ?) where id_item = ?', //uwzglednic bid.retracted -> nie liczą się juz
@@ -279,7 +278,13 @@ function createRouter(db) {
       (error, result) => {
         if (error) {
           console.log(error);
-          res.status(500).json({ status: 500 });
+          if (error.code == "ER_SUBQUERY_NO_1_ROW") {
+            // there is more than one max offer, but we care only for the first bidder, so ignore this error, first highest offer winns
+            // no change, untill someone gives even higher offer
+            res.status(200).json({ status: 200 });
+          } else {
+            res.status(500).json({ status: 500 });
+          }
         } else {
           res.status(200).json({ status: 200 });
         }

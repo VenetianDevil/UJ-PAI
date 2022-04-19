@@ -5,15 +5,18 @@ var _ = require('lodash');
 
 export function BidModalComponent(props) {
   const [bidVal, setBidValState] = useState();
+  const [loading, setLoading] = useState(false);
 
   const handleBidDebounce = _.debounce(handleBid, 200);
   const offer = props.offer;
 
   async function handleBidding(e) {
     e.preventDefault();
+    setLoading(true)
     console.log('bidding', bidVal);
     await server.placeBid({ id_item: offer.id_item, price: bidVal })
-      .then((data) => {
+    .then((data) => {
+        setLoading(false)
         if(!!props.callback){
           props.callback();
         }
@@ -39,7 +42,7 @@ export function BidModalComponent(props) {
             <Form.Control type="number" step="0.01" placeholder="100 000" onChange={handleBidDebounce} />
           </Form.Group>
 
-          <Button variant="primary" type="submit" className='w-100'>
+          <Button variant="primary" type="submit" className='w-100' disabled={loading}>
             BID
           </Button>
         </Form>

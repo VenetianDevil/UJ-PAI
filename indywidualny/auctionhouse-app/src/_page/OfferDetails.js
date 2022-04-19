@@ -25,6 +25,7 @@ class OfferDetailsComponent extends React.Component {
       offer: {},
       showBidModal: false,
       showStatusModal: false,
+      hideRetracted: false,
       isLoading: true,
       admin: {
         bids: [],
@@ -36,7 +37,8 @@ class OfferDetailsComponent extends React.Component {
     this.handleClose = this.handleClose.bind(this);
     this.showBidModal = this.showBidModal.bind(this);
     this.showStatusModal = this.showStatusModal.bind(this);
-    this.forceUpdate = this.forceUpdate.bind(this)
+    this.handleHideRetracted = this.handleHideRetracted.bind(this);
+    this.forceUpdate = this.forceUpdate.bind(this);
   }
 
   componentDidMount() {
@@ -71,7 +73,7 @@ class OfferDetailsComponent extends React.Component {
     this.setState({ isLoading: true });
     await server.getBiddingHistory(this.id)
       .then((data) => {
-        console.log(data)
+        // console.log(data)
         data.sort((a, b) => {
           return b.price - a.price;
         });
@@ -95,9 +97,13 @@ class OfferDetailsComponent extends React.Component {
     this.setState({ showStatusModal: true });
   }
 
+  handleHideRetracted() {
+    this.setState({hideRetracted: !this.state.hideRetracted});
+  }
+
   render() {
     const { offer, isLoading, admin } = this.state;
-    console.log('admin', admin);
+    // console.log('admin', admin);
 
     if (isLoading) {
       return (<LoaderComponent></LoaderComponent>)
@@ -122,6 +128,7 @@ class OfferDetailsComponent extends React.Component {
           </Col>
           {admin.is_admin ?
             <Col xs={12} className="my-4">
+              <Button role="button" variant="outline-danger" className="mb-2" onClick={this.handleHideRetracted}>{!!this.state.hideRetracted ? "Show retraced" : "Hide retracted"}</Button>
               <Table striped bordered hover>
                 <thead>
                   <tr>
@@ -133,7 +140,7 @@ class OfferDetailsComponent extends React.Component {
                 </thead>
                 <tbody>
                   {!!admin.bids.length ? admin.bids.map(bid =>
-                    <tr key={bid.id_bid} className={!!bid.retracted ? 'retracted_bid' : ''}>
+                    <tr key={bid.id_bid} className={` ${!!bid.retracted ? 'retracted_bid' : ''} ${!!bid.retracted && !!this.state.hideRetracted ? 'd-none' : ''} `}>
                       <td>{bid.id_bid}</td>
                       <td>{bid.username}</td>
                       <td>{Number(bid.price).toFixed(2)}</td>
@@ -144,6 +151,7 @@ class OfferDetailsComponent extends React.Component {
                   }
                 </tbody>
               </Table>
+              <Button role="button" variant="outline-danger" className="mt-2" onClick={this.handleHideRetracted}>{!!this.state.hideRetracted ? "Show retraced" : "Hide retracted"}</Button>
             </Col>
             : ''
           }
