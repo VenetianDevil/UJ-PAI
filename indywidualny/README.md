@@ -48,8 +48,10 @@ cd server && npm start
 
 # Run app with build
 ```
-npm start (http://localhost:3001/)
+npm start
 ```
+
+http://localhost:3001/
 
 # Example accounts
 admin account
